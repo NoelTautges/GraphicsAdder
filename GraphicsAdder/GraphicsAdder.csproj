@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>..\Bins\$(Configuration)\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="classdata.tpk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="classdata.tpk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(Configuration)'=='Debug'">
+      <ItemGroup>
+        <Reference Include="AssetsTools.NET">
+          <HintPath>Libraries\Debug\AssetsTools.NET.dll</HintPath>
+        </Reference>
+        <Reference Include="DXShaderRestorer">
+          <HintPath>Libraries\Debug\DXShaderRestorer.dll</HintPath>
+        </Reference>
+        <Reference Include="HLSLccWrapper_x64">
+          <HintPath>Libraries\Debug\HLSLccWrapper_x64.dll</HintPath>
+        </Reference>
+        <Reference Include="uTinyRipperCore">
+          <HintPath>Libraries\Debug\uTinyRipperCore.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="AssetsTools.NET">
+          <HintPath>Libraries\Release\AssetsTools.NET.dll</HintPath>
+        </Reference>
+        <Reference Include="DXShaderRestorer">
+          <HintPath>Libraries\Release\DXShaderRestorer.dll</HintPath>
+        </Reference>
+        <Reference Include="HLSLccWrapper_x64">
+          <HintPath>Libraries\Release\HLSLccWrapper_x64.dll</HintPath>
+        </Reference>
+        <Reference Include="uTinyRipperCore">
+          <HintPath>Libraries\Release\uTinyRipperCore.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <Folder Include="Libraries\Debug\" />
+    <Folder Include="Libraries\Release\" />
+  </ItemGroup>
+
+</Project>
