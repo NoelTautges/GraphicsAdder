@@ -32,7 +32,7 @@ namespace GraphicsAdder
             }).ToArray();
         }
 
-        static void ConvertFile(AssetsManager am, SerializedFile file, string destPath)
+        static bool ConvertFile(AssetsManager am, SerializedFile file, string destPath)
         {
             var inst = am.LoadAssetsFile(file.FilePath, false);
             am.LoadClassDatabaseFromPackage(inst.file.typeTree.unityVersion);
@@ -65,13 +65,10 @@ namespace GraphicsAdder
                             direct3DIndex = index;
                             break;
                         case 15:
-                            return;
+                            return false;
                         default:
                             break;
                     }
-
-                    if (direct3DIndex != -1)
-                        break;
                 }
 
                 platforms.SetChildrenList(platforms.GetChildrenList().Concat(GetArray(platforms, new int[] { 15 })).ToArray());
@@ -208,6 +205,8 @@ namespace GraphicsAdder
             var writer = new AssetsFileWriter(File.OpenWrite(destPath));
             inst.file.Write(writer, 0, replacers, 0);
             writer.Close();
+
+            return shaderIndex > 0;
         }
 
         static void Main(string[] args)
@@ -231,6 +230,8 @@ namespace GraphicsAdder
 
             var inPath = @"C:\Program Files (x86)\Steam\steamapps\common\Outer Wilds\OuterWilds_Data";
             var structure = GameStructure.Load(new List<string> { inPath });
+            var anyShadersConverted = false;
+            var shadersConverted = false;
 
             foreach (var file in structure.FileCollection.SerializedFiles)
             {
@@ -243,12 +244,32 @@ namespace GraphicsAdder
                 Console.WriteLine($"Reading asset bundle {file.Name}");
                 var destPath = Path.Combine(outPath, Path.GetRelativePath(inPath, file.FilePath));
                 Directory.CreateDirectory(Path.GetDirectoryName(destPath));
-                ConvertFile(am, file, destPath);
+
+                shadersConverted = ConvertFile(am, file, destPath);
+                anyShadersConverted |= shadersConverted;
+                if (!shadersConverted)
+                {
+                    Console.WriteLine($"Skipping asset bundle {file.Name} because it has GLCore shaders or no shaders at all");
+                }
             }
 
-            Console.WriteLine("\n");
+            if (shadersConverted)
+            {
+                Console.WriteLine("\n");
+            }
+            else
+            {
+                Console.WriteLine();
+            }
             Console.WriteLine("Done!");
-            Console.WriteLine($"Copy the files from {outPath} to {inPath}, but make backups first or you'll need to reinstall the game to get back. :)");
+            if (!anyShadersConverted)
+            {
+                Console.WriteLine("No bundles were modified. No copying is necessary. :)");
+            }
+            else
+            {
+                Console.WriteLine($"Copy the files from {outPath} to {inPath}, but make backups first or you'll need to reinstall the game to get back. :)");
+            }
             Console.WriteLine("Press any key to quit...");
             Console.ReadKey();
         }
