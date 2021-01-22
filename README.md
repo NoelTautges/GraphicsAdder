@@ -42,7 +42,7 @@ Non-NuGet dependencies are included in `GraphicsAdder\Libraries`.
 
 ## I have a question!
 
-Shoot me a DM over at [my Twitter](https://twitter.com/NoelTautges) or open an issue in this repository!
+Shoot me a DM over at [my Twitter](https://twitter.com/NoelTautges) or [my Reddit](https://www.reddit.com/message/compose/?to=u/NoelTautges) or [open an issue in this repository](https://github.com/NoelTautges/GraphicsAdder/issues/new)!
 
 ## Future plans
 
