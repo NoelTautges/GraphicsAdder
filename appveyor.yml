@@ -7,7 +7,7 @@ configuration:
 before_build:
  - nuget restore
 after_build:
- - del Bins\Release\$(APPVEYOR_PROJECT_NAME).runtimeconfig.dev.json
+ - del Bins\$(configuration)\$(APPVEYOR_PROJECT_NAME).runtimeconfig.dev.json
 artifacts:
  - path: Bins\$(configuration)
    name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME)-$(configuration)
