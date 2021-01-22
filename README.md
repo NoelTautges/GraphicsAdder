@@ -20,6 +20,12 @@ A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobius
 
 8.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
 
+### Important notes
+
+- While I have ironed out all discovered bugs where Outer Wilds crashes as a result of using Direct3D with converted files, I cannot guarantee it will never crash. **You convert your files at your own risk.**
+
+- **This tool will not corrupt your saves**, even if you replace the game files, because they are stored in a separate folder.
+
 ## How do I build it?
 
 Open GraphicsAdder.sln in Visual Studio and hit build. Only x64 is supported at the moment.
