@@ -9,10 +9,6 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-  </PropertyGroup>
-
   <ItemGroup>
     <None Remove="classdata.tpk" />
   </ItemGroup>
@@ -30,35 +26,22 @@
   <Choose>
     <When Condition="'$(Configuration)'=='Debug'">
       <ItemGroup>
-        <Reference Include="AssetsTools.NET">
-          <HintPath>Libraries\Debug\AssetsTools.NET.dll</HintPath>
-        </Reference>
-        <Reference Include="DXShaderRestorer">
-          <HintPath>Libraries\Debug\DXShaderRestorer.dll</HintPath>
-        </Reference>
-        <Reference Include="HLSLccWrapper_x64">
-          <HintPath>Libraries\Debug\HLSLccWrapper_x64.dll</HintPath>
-        </Reference>
-        <Reference Include="uTinyRipperCore">
-          <HintPath>Libraries\Debug\uTinyRipperCore.dll</HintPath>
-        </Reference>
+        <Reference Include="Libraries\Debug\AssetsTools.NET.dll" />
+        <Reference Include="Libraries\Debug\DXShaderRestorer.dll" />
+        <Reference Include="Libraries\Debug\HLSLccWrapper_x64.dll" />
+        <Reference Include="Libraries\Debug\uTinyRipperCore.dll" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="AssetsTools.NET">
-          <HintPath>Libraries\Release\AssetsTools.NET.dll</HintPath>
-        </Reference>
-        <Reference Include="DXShaderRestorer">
-          <HintPath>Libraries\Release\DXShaderRestorer.dll</HintPath>
-        </Reference>
-        <Reference Include="HLSLccWrapper_x64">
-          <HintPath>Libraries\Release\HLSLccWrapper_x64.dll</HintPath>
-        </Reference>
-        <Reference Include="uTinyRipperCore">
-          <HintPath>Libraries\Release\uTinyRipperCore.dll</HintPath>
-        </Reference>
+        <Reference Include="Libraries\Release\AssetsTools.NET.dll" />
+        <Reference Include="Libraries\Release\DXShaderRestorer.dll" />
+        <Reference Include="Libraries\Release\HLSLccWrapper_x64.dll" />
+        <Reference Include="Libraries\Release\uTinyRipperCore.dll" />
       </ItemGroup>
+      <PropertyGroup>
+        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+      </PropertyGroup>
     </Otherwise>
   </Choose>
 
