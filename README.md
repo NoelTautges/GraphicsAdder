@@ -18,7 +18,7 @@ A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobius
 
 7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of an upside-down world, censor bars everywhere, and a spaceship with all the RGB lights you could afford from Hearthian Fry's Electronics!
 
-8.) ~~(optional) Remove the Launch Options in Properties if you want to go back to the original game~~ **Due to a bug, it is impossible to remove the arguments and launch the game normally without it crashing. You will have to restore a backup or reinstall the game as well as remove the arguments to get back. In Steam, right click on Outer Wilds > Properties > Local Files > Verify integrity of game files to easily restore the game files.**
+8.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
 
 ## How do I build it?
 

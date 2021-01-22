@@ -32,6 +32,18 @@ namespace GraphicsAdder
             }).ToArray();
         }
 
+        static void ConcatArray<T>(AssetTypeValueField template, T[] array)
+        {
+            template = template.Get("Array");
+            template.SetChildrenList(template.children.Concat(GetArray(template, array)).ToArray());
+        }
+
+        static void SetArray<T>(AssetTypeValueField template, T[] array)
+        {
+            template = template.Get("Array");
+            template.SetChildrenList(GetArray(template, array));
+        }
+
         static bool ConvertFile(AssetsManager am, SerializedFile file, string destPath)
         {
             var inst = am.LoadAssetsFile(file.FilePath, false);
@@ -73,22 +85,12 @@ namespace GraphicsAdder
 
                 platforms.SetChildrenList(platforms.GetChildrenList().Concat(GetArray(platforms, new int[] { 15 })).ToArray());
 
-                var offsets = new List<uint>();
-                var compressedLengths = new List<uint>();
-                var decompressedLengths = new List<uint>();
                 var cache = new GLSLCache(file.Version);
                 var subShaders = shader.ParsedForm.SubShaders.Length;
 
                 using (var memStream = new MemoryStream())
                 {
-                    // This code is very version-specific and only works between Unity versions 5.5-2019.3
-                    foreach (var blob in shader.Blobs)
-                    {
-                        blob.Write(file.Layout, memStream, out uint[] existingOffsets, out uint[] existingCompressedLengths, out uint[] existingDecompressedLengths);
-                        offsets.AddRange(existingOffsets);
-                        compressedLengths.AddRange(existingCompressedLengths);
-                        decompressedLengths.AddRange(existingDecompressedLengths);
-                    }
+                    memStream.Write(baseField.Get("compressedBlob").Get("Array").GetChildrenList().Select(b => (byte)b.GetValue().AsInt()).ToArray());
 
                     foreach (var (subShader, subIndex) in shader.ParsedForm.SubShaders.WithIndex())
                     {
@@ -182,15 +184,11 @@ namespace GraphicsAdder
                     }
 
                     shader.Blobs[direct3DIndex].Write(file.Layout, memStream, out uint[] newOffsets, out uint[] newCompressedLengths, out uint[] newDecompressedLengths);
-                    offsets.AddRange(newOffsets);
-                    compressedLengths.AddRange(newCompressedLengths);
-                    decompressedLengths.AddRange(newDecompressedLengths);
 
-                    var offsetsField = baseField.Get("offsets").Get("Array");
-                    baseField.Get("offsets").Get("Array").SetChildrenList(GetArray(offsetsField, offsets.ToArray()));
-                    baseField.Get("compressedLengths").Get("Array").SetChildrenList(GetArray(offsetsField, compressedLengths.ToArray()));
-                    baseField.Get("decompressedLengths").Get("Array").SetChildrenList(GetArray(offsetsField, decompressedLengths.ToArray()));
-                    baseField.Get("compressedBlob").Get("Array").SetChildrenList(GetArray(baseField.Get("compressedBlob").Get("Array"), memStream.ToArray()));
+                    ConcatArray(baseField.Get("offsets"), newOffsets);
+                    ConcatArray(baseField.Get("compressedLengths"), newCompressedLengths);
+                    ConcatArray(baseField.Get("decompressedLengths"), newDecompressedLengths);
+                    SetArray(baseField.Get("compressedBlob"), memStream.ToArray());
                 }
 
                 var newBytes = baseField.WriteToByteArray();
