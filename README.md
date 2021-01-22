@@ -24,7 +24,7 @@ A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobius
 
 Open GraphicsAdder.sln in Visual Studio and hit build. Only x64 is supported at the moment.
 
-Non-NuGet dependencies are included in `GraphicsAdder/Libraries`.
+Non-NuGet dependencies are included in `GraphicsAdder\Libraries`.
 
 ### Dependencies
 
