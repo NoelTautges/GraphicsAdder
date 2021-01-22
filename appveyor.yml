@@ -23,5 +23,5 @@ deploy:
     description: ''
     auth_token:
       secure: zS77Q6KGqj/AHLA80Kfyv95pXNEVYDV9mXNj0XyHoraqX5mu225SGhpFwS9oQxIB
-    artifact: $(APPVEYOR_PROJECT_NAME)-*-*
+    artifact: $(APPVEYOR_PROJECT_NAME)-*-*.zip
     force_update: true
