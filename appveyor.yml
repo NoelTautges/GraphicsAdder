@@ -5,8 +5,8 @@ branches:
     - main
 
 configuration:
- - Release
  - Debug
+ - Release
 init:
  - ps: Update-AppveyorBuild -Version $env:APPVEYOR_REPO_TAG
 before_build:
