@@ -6,7 +6,7 @@ A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobius
 
 1.) Make sure you're on Windows and have the Steam version of Outer Wilds installed
 
-2.) Download the latest version of GraphicsAdder from the releases tab to the right
+2.) Download the latest release version of GraphicsAdder from the releases tab to the right
 
 3.) Extract the zip file, run it, and wait for it to finish
 
