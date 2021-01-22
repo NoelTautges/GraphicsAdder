@@ -8,7 +8,7 @@ A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobius
 
 2.) Download the latest release version of GraphicsAdder from the releases tab to the right
 
-3.) Extract the zip file, run it, and wait for it to finish
+3.) Extract the zip file, run GraphicsAdder.exe, and wait for it to finish
 
 4.) Check which files it generated in the OuterWilds_Data_replacement folder and back up those same files from your OuterWilds_Data folder if you don't want to reinstall the game in case something goes wrong
 
