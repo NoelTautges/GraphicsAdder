@@ -12,7 +12,8 @@ namespace GraphicsAdder
     class GLSLCache
     {
         public UnityVersion Version;
-        private Dictionary<uint, string> Map;
+        private Dictionary<string, string> UnprocessedMap;
+        private Dictionary<string, string> ProcessedMap;
         private Dictionary<string, List<string>> Replacements = new Dictionary<string, List<string>>()
         {
             {
@@ -27,10 +28,11 @@ namespace GraphicsAdder
         public GLSLCache(UnityVersion version)
         {
             Version = version;
-            Map = new Dictionary<uint, string>();
+            UnprocessedMap = new Dictionary<string, string>();
+            ProcessedMap = new Dictionary<string, string>();
         }
 
-        private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version, string shaderName)
+        private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
         {
             using (MemoryStream stream = new MemoryStream(program.ProgramData.Skip(6).ToArray()))
             {
@@ -47,72 +49,83 @@ namespace GraphicsAdder
 
                     if (shader.OK == 0) throw new InvalidDataException();
 
-                    var startLines = shader.Text.Split("\n");
-                    var endLines = new List<string>(startLines.Length);
-                    bool inLayout = false;
-
-                    foreach (var line in startLines)
-                    {
-                        if (line.StartsWith('#') && line.IndexOf("#extension") == -1 && line.IndexOf("#version") == -1)
-                        {
-                            continue;
-                        }
-
-                        if (line.IndexOf("layout(std140)") != -1)
-                        {
-                            inLayout = true;
-                            continue;
-                        }
-                        else if (line == "};")
-                        {
-                            inLayout = false;
-                            continue;
-                        }
-
-                        if (line.IndexOf("unused") == -1)
-                        {
-                            if (inLayout)
-                            {
-                                endLines.Add(string.Join("", "uniform".Concat(line)));
-                            }
-                            else
-                            {
-                                if (line.IndexOf("layout(location = ") != -1 && false)
-                                {
-                                    endLines.Add(line.Split(") ")[1]);
-                                }
-                                else
-                                {
-                                    endLines.Add(line);
-                                }
-                            }
-                        }
-
-                        if (line == "#extension GL_ARB_explicit_attrib_location : require")
-                        {
-                            endLines.Add("#extension GL_ARB_shader_bit_encoding : enable");
-                        }
-                    }
-
-                    var code = string.Join('\n', endLines);
-                    var replacements = Replacements.GetValueOrDefault(shaderName, new List<string>());
-
-                    for (int i = 0; i < Math.Floor(replacements.Count / 2.0); i++)
-                    {
-                        code = code.Replace(replacements[i * 2], replacements[i * 2 + 1]);
-                    }
-
-                    return code;
+                    return shader.Text;
                 }
             }
         }
 
-        public string GetGLSL(ShaderSubProgram program, uint blobIndex, string shaderName)
+        private string ProcessGLSL(string glsl, string shaderName)
         {
-            if (!Map.ContainsKey(blobIndex))
-                Map[blobIndex] = ConvertToGLSL(program, Version, shaderName);
+            var startLines = glsl.Split("\n");
+            var endLines = new List<string>(startLines.Length);
+            bool inLayout = false;
 
-            return Map[blobIndex];
+            foreach (var line in startLines)
+            {
+                if (line.StartsWith('#') && line.IndexOf("#extension") == -1 && line.IndexOf("#version") == -1)
+                {
+                    continue;
+                }
+
+                if (line.IndexOf("layout(std140)") != -1)
+                {
+                    inLayout = true;
+                    continue;
+                }
+                else if (line == "};")
+                {
+                    inLayout = false;
+                    continue;
+                }
+
+                if (line.IndexOf("unused") == -1)
+                {
+                    if (inLayout)
+                    {
+                        endLines.Add(string.Join("", "uniform".Concat(line)));
+                    }
+                    else
+                    {
+                        if (line.IndexOf("layout(location = ") != -1 && false)
+                        {
+                            endLines.Add(line.Split(") ")[1]);
+                        }
+                        else
+                        {
+                            endLines.Add(line);
+                        }
+                    }
+                }
+
+                if (line == "#extension GL_ARB_explicit_attrib_location : require")
+                {
+                    endLines.Add("#extension GL_ARB_shader_bit_encoding : enable");
+                }
+            }
+
+            var processed = string.Join('\n', endLines);
+            var replacements = Replacements.GetValueOrDefault(shaderName, new List<string>());
+
+            for (int i = 0; i < Math.Floor(replacements.Count / 2.0); i++)
+            {
+                processed = processed.Replace(replacements[i * 2], replacements[i * 2 + 1]);
+            }
+
+            return processed;
+        }
+
+        public string GetGLSL(ShaderSubProgram program, string shaderName, uint blobIndex, bool unprocessed = false)
+        {
+            var key = $"{shaderName}-{blobIndex}";
+            var map = unprocessed ? UnprocessedMap : ProcessedMap;
+
+            if (!map.ContainsKey(key))
+            {
+                UnprocessedMap[key] = ConvertToGLSL(program, Version);
+                ProcessedMap[key] = ProcessGLSL(UnprocessedMap[key], shaderName);
+            }
+
+            return map[key];
         }
     }
 }
