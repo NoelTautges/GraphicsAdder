@@ -132,8 +132,8 @@ namespace GraphicsAdder
 
                                 ref var fragment = ref shader.Blobs[direct3DIndex].SubPrograms[fragmentSubProgram.BlobIndex];
 
-                                var vertexGLSL = cache.GetGLSL(vertex, vertexSubProgram.BlobIndex);
-                                var fragmentGLSL = cache.GetGLSL(fragment, fragmentSubProgram.BlobIndex);
+                                var vertexGLSL = cache.GetGLSL(vertex, vertexSubProgram.BlobIndex, shader.ParsedForm.Name);
+                                var fragmentGLSL = cache.GetGLSL(fragment, fragmentSubProgram.BlobIndex, shader.ParsedForm.Name);
                                 var completedProgram = string.Join(
                                     "\n",
                                     "#ifdef VERTEX",

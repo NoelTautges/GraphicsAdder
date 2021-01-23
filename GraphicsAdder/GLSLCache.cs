@@ -1,5 +1,6 @@
 ﻿using DXShaderRestorer;
 using HLSLccWrapper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,16 @@ namespace GraphicsAdder
     {
         public UnityVersion Version;
         private Dictionary<uint, string> Map;
+        private Dictionary<string, List<string>> Replacements = new Dictionary<string, List<string>>()
+        {
+            {
+                "Hidden/Post FX/SubpixelMorphologicalAntialiasing",
+                new List<string> {
+                    "SV_Target0 = textureLod(_MainTex, vs_TEXCOORD0.xy, 0.0);",
+                    "SV_Target0 = textureLod(_MainTex, vec2(vs_TEXCOORD0.x, 1 - vs_TEXCOORD0.y), 0.0);"
+                }
+            }
+        };
 
         public GLSLCache(UnityVersion version)
         {
@@ -19,7 +30,7 @@ namespace GraphicsAdder
             Map = new Dictionary<uint, string>();
         }
 
-        private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
+        private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version, string shaderName)
         {
             using (MemoryStream stream = new MemoryStream(program.ProgramData.Skip(6).ToArray()))
             {
@@ -83,15 +94,23 @@ namespace GraphicsAdder
                         }
                     }
 
-                    return string.Join('\n', endLines); ;
+                    var code = string.Join('\n', endLines);
+                    var replacements = Replacements.GetValueOrDefault(shaderName, new List<string>());
+
+                    for (int i = 0; i < Math.Floor(replacements.Count / 2.0); i++)
+                    {
+                        code = code.Replace(replacements[i * 2], replacements[i * 2 + 1]);
+                    }
+
+                    return code;
                 }
             }
         }
 
-        public string GetGLSL(ShaderSubProgram program, uint blobIndex)
+        public string GetGLSL(ShaderSubProgram program, uint blobIndex, string shaderName)
         {
             if (!Map.ContainsKey(blobIndex))
-                Map[blobIndex] = ConvertToGLSL(program, Version);
+                Map[blobIndex] = ConvertToGLSL(program, Version, shaderName);
 
             return Map[blobIndex];
         }
