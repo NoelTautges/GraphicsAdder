@@ -16,7 +16,7 @@ A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobius
 
 6.) Right click on Outer Wilds in Steam > Properties > Add `-force-glcore -force-gfx-without-build` to Launch Options
 
-7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of an upside-down world, censor bars everywhere, and a spaceship with all the RGB lights Slate could afford from Hearthian Fry's Electronics!
+7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, censor bars everywhere, and a spaceship with all the RGB lights Slate could afford from Hearthian Fry's Electronics!
 
 8.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
 
