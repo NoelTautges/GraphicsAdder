@@ -9,7 +9,7 @@ using UnityVersion = uTinyRipper.Version;
 
 namespace GraphicsAdder
 {
-    class GLSLCache
+    public class GLSLCache
     {
         public UnityVersion Version;
         private Dictionary<string, string> UnprocessedMap;

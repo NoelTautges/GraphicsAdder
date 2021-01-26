@@ -9,6 +9,7 @@ using uTinyRipper;
 using uTinyRipper.Classes.Shaders;
 using UnityObject = uTinyRipper.Classes.Object;
 using UnityShader = uTinyRipper.Classes.Shader;
+using GraphicsAdder.Utils;
 
 namespace GraphicsAdder
 {
@@ -16,11 +17,6 @@ namespace GraphicsAdder
     {
         public const int shaderPlatform = (int)ShaderGpuProgramType55.GLCore41;
         public const bool spoilers = true;
-
-        public static IEnumerable<(T item, int index)> WithIndex<T>(this IEnumerable<T> source)
-        {
-            return source.Select((item, index) => (item, index));
-        }
 
         static AssetTypeValueField[] GetArray<T>(AssetTypeValueField template, T[] array)
         {

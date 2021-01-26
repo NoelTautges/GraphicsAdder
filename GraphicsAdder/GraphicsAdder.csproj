@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Libraries\**" />
+    <EmbeddedResource Remove="Libraries\**" />
+    <None Remove="Libraries\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="classdata.tpk" />
   </ItemGroup>
 
@@ -26,28 +32,23 @@
   <Choose>
     <When Condition="'$(Configuration)'=='Debug'">
       <ItemGroup>
-        <Reference Include="Libraries\Debug\AssetsTools.NET.dll" />
-        <Reference Include="Libraries\Debug\DXShaderRestorer.dll" />
-        <Reference Include="Libraries\Debug\HLSLccWrapper_x64.dll" />
-        <Reference Include="Libraries\Debug\uTinyRipperCore.dll" />
+        <Reference Include="..\Libraries\Debug\AssetsTools.NET.dll" />
+        <Reference Include="..\Libraries\Debug\DXShaderRestorer.dll" />
+        <Reference Include="..\Libraries\Debug\HLSLccWrapper_x64.dll" />
+        <Reference Include="..\Libraries\Debug\uTinyRipperCore.dll" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="Libraries\Release\AssetsTools.NET.dll" />
-        <Reference Include="Libraries\Release\DXShaderRestorer.dll" />
-        <Reference Include="Libraries\Release\HLSLccWrapper_x64.dll" />
-        <Reference Include="Libraries\Release\uTinyRipperCore.dll" />
+        <Reference Include="..\Libraries\Release\AssetsTools.NET.dll" />
+        <Reference Include="..\Libraries\Release\DXShaderRestorer.dll" />
+        <Reference Include="..\Libraries\Release\HLSLccWrapper_x64.dll" />
+        <Reference Include="..\Libraries\Release\uTinyRipperCore.dll" />
       </ItemGroup>
       <PropertyGroup>
         <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
       </PropertyGroup>
     </Otherwise>
   </Choose>
-
-  <ItemGroup>
-    <Folder Include="Libraries\Debug\" />
-    <Folder Include="Libraries\Release\" />
-  </ItemGroup>
 
 </Project>
