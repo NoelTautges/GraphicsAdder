@@ -225,11 +225,11 @@ namespace ShaderView
             var statusBar = new StatusBar(new StatusItem[]
             {
                 new StatusItem(Key.Unknown, "~TAB~ Switch Panes", null),
-                new StatusItem(Key.CtrlMask | Key.L, "~CTRL-L~ Show Shader Listing", DisplayShaderListing),
-                new StatusItem(Key.CtrlMask | Key.U, "~CTRL-U~ Show Unprocessed GLSL", () => DisplayShaderText(true)),
-                new StatusItem(Key.CtrlMask | Key.P, "~CTRL-P~ Show Processed GLSL", () => DisplayShaderText(false)),
-                new StatusItem(Key.PageUp, "~PGUP~ Previous Subprogram", DecrementSubProgram),
-                new StatusItem(Key.PageDown, "~PGDN~ Next Subprogram", IncrementSubProgram),
+                new StatusItem(Key.CtrlMask | Key.L, "~CTRL-L~ Shader Listing", DisplayShaderListing),
+                new StatusItem(Key.CtrlMask | Key.U, "~CTRL-U~ Unprocessed GLSL", () => DisplayShaderText(true)),
+                new StatusItem(Key.CtrlMask | Key.P, "~CTRL-P~ Processed GLSL", () => DisplayShaderText(false)),
+                new StatusItem(Key.PageUp, "~PGUP~ Previous", DecrementSubProgram),
+                new StatusItem(Key.PageDown, "~PGDN~ Next", IncrementSubProgram),
             });
             top.Add(statusBar);
 
