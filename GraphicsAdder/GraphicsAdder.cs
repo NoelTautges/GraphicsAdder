@@ -1,5 +1,6 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
+using GraphicsAdder.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,6 @@ using uTinyRipper;
 using uTinyRipper.Classes.Shaders;
 using UnityObject = uTinyRipper.Classes.Object;
 using UnityShader = uTinyRipper.Classes.Shader;
-using GraphicsAdder.Utils;
 
 namespace GraphicsAdder
 {

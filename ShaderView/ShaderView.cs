@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GraphicsAdder.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,8 +8,6 @@ using Microsoft.WindowsAPICodePack.Dialogs;
 using Terminal.Gui;
 using uTinyRipper;
 using uTinyRipper.Classes;
-using GraphicsAdder;
-using GraphicsAdder.Utils;
 using uTinyRipper.Classes.Shaders;
 
 namespace ShaderView

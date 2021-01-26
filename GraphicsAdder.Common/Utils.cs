@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace GraphicsAdder.Utils
+namespace GraphicsAdder.Common
 {
     public static class Utils
     {

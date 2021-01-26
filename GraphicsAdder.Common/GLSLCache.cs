@@ -1,4 +1,5 @@
 ﻿using DXShaderRestorer;
+using GraphicsAdder.Common;
 using HLSLccWrapper;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 using uTinyRipper.Classes.Shaders;
 using UnityVersion = uTinyRipper.Version;
 
-namespace GraphicsAdder
+namespace GraphicsAdder.Common
 {
     public class GLSLCache
     {
