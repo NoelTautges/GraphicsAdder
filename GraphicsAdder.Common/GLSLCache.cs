@@ -60,6 +60,8 @@ namespace GraphicsAdder.Common
             var startLines = glsl.Split("\n");
             var endLines = new List<string>(startLines.Length);
             bool inLayout = false;
+            bool inStruct = false;
+            var structNames = new List<string>();
 
             foreach (var line in startLines)
             {
@@ -79,11 +81,25 @@ namespace GraphicsAdder.Common
                     continue;
                 }
 
+                if (line.IndexOf("struct") != -1)
+                {
+                    inStruct = true;
+                    structNames.Add(line.Split(" ")[1].Replace("_Type", ""));
+                }
+                else if (inStruct && line == "};")
+                {
+                    inStruct = false;
+                }
+
                 if (line.IndexOf("unused") == -1)
                 {
                     if (inLayout)
                     {
                         endLines.Add(string.Join("", "uniform".Concat(line)));
+                    }
+                    else if (inStruct && line.IndexOf(".") != -1)
+                    {
+                        endLines.Add(line.Replace(structNames.Last() + ".", ""));
                     }
                     else
                     {
@@ -110,6 +126,11 @@ namespace GraphicsAdder.Common
             for (int i = 0; i < Math.Floor(replacements.Count / 2.0); i++)
             {
                 processed = processed.Replace(replacements[i * 2], replacements[i * 2 + 1]);
+            }
+
+            foreach (var structName in structNames)
+            {
+                processed = processed.Replace($"{structName}.{structName}", structName);
             }
 
             return processed;
