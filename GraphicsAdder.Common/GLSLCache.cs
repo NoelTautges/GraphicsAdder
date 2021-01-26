@@ -73,7 +73,7 @@ namespace GraphicsAdder.Common
                     inLayout = true;
                     continue;
                 }
-                else if (line == "};")
+                else if (inLayout && line == "};")
                 {
                     inLayout = false;
                     continue;
