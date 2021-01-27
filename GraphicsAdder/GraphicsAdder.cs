@@ -42,9 +42,6 @@ namespace GraphicsAdder
 
         static bool ConvertFile(AssetsManager am, SerializedFile file, string destPath)
         {
-            if (file.Name != "sharedassets0.assets")
-                return false;
-
             var inst = am.LoadAssetsFile(file.FilePath, false);
             am.LoadClassDatabaseFromPackage(inst.file.typeTree.unityVersion);
             var replacers = new List<AssetsReplacer>();
@@ -63,9 +60,6 @@ namespace GraphicsAdder
                 var shaderInfo = inst.table.GetAssetInfo(shader.PathID);
                 var baseField = am.GetTypeInstance(inst.file, shaderInfo).GetBaseField();
                 var replicaBaseField = am.GetTypeInstance(inst.file, shaderInfo).GetBaseField();
-
-                if (shader.ParsedForm.Name != "Standard")
-                    continue;
 
                 var platforms = baseField.Get("platforms").Get("Array");
                 var direct3DIndex = -1;

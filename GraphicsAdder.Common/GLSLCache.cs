@@ -55,7 +55,7 @@ namespace GraphicsAdder.Common
             }
         }
 
-        private string ProcessGLSL(string glsl, string shaderName, uint blobIndex)
+        private string ProcessGLSL(string glsl, string shaderName)
         {
             var startLines = glsl.Split("\n");
             var endLines = new List<string>(startLines.Length);
@@ -128,17 +128,9 @@ namespace GraphicsAdder.Common
                 processed = processed.Replace(replacements[i * 2], replacements[i * 2 + 1]);
             }
 
-            if (shaderName == "Standard" && blobIndex > 3587 && blobIndex < 3670)
+            foreach (var structName in structNames)
             {
-                var printed = false;
-                foreach (var structName in structNames)
-                {
-                    if (!printed && processed.IndexOf($"{structName}.{structName}") != -1)
-                    {
-                        Console.WriteLine($"Replacing {structName} in {shaderName} ({blobIndex})");
-                    }
-                    processed = processed.Replace($"{structName}.{structName}", structName);
-                }
+                processed = processed.Replace($"{structName}.{structName}", structName);
             }
 
             return processed;
@@ -152,7 +144,7 @@ namespace GraphicsAdder.Common
             if (!map.ContainsKey(key))
             {
                 UnprocessedMap[key] = ConvertToGLSL(program, Version);
-                ProcessedMap[key] = ProcessGLSL(UnprocessedMap[key], shaderName, blobIndex);
+                ProcessedMap[key] = ProcessGLSL(UnprocessedMap[key], shaderName);
             }
 
             return map[key];
