@@ -65,7 +65,8 @@ namespace GraphicsAdder.Common
 
             foreach (var line in startLines)
             {
-                if (line.StartsWith('#') && line.IndexOf("#extension") == -1 && line.IndexOf("#version") == -1)
+                if ((line.StartsWith('#') && line.IndexOf("#extension") == -1 && line.IndexOf("#version") == -1) ||
+                    line.IndexOf("unused") != -1)
                 {
                     continue;
                 }
@@ -91,26 +92,23 @@ namespace GraphicsAdder.Common
                     inStruct = false;
                 }
 
-                if (line.IndexOf("unused") == -1)
+                if (inLayout)
                 {
-                    if (inLayout)
+                    endLines.Add(string.Join("", "uniform".Concat(line)));
+                }
+                else if (inStruct && line.IndexOf(".") != -1)
+                {
+                    endLines.Add(line.Replace(structNames.Last() + ".", ""));
+                }
+                else
+                {
+                    if (line.IndexOf("layout(location = ") != -1 && false)
                     {
-                        endLines.Add(string.Join("", "uniform".Concat(line)));
-                    }
-                    else if (inStruct && line.IndexOf(".") != -1)
-                    {
-                        endLines.Add(line.Replace(structNames.Last() + ".", ""));
+                        endLines.Add(line.Split(") ")[1]);
                     }
                     else
                     {
-                        if (line.IndexOf("layout(location = ") != -1 && false)
-                        {
-                            endLines.Add(line.Split(") ")[1]);
-                        }
-                        else
-                        {
-                            endLines.Add(line);
-                        }
+                        endLines.Add(line);
                     }
                 }
 
@@ -130,6 +128,11 @@ namespace GraphicsAdder.Common
 
             foreach (var structName in structNames)
             {
+                if (structName == "unity_Builtins0Array")
+                {
+                    continue;
+                }
+
                 processed = processed.Replace($"{structName}.{structName}", structName);
             }
 
