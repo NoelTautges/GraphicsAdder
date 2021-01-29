@@ -1,0 +1,40 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="340"
+             x:Class="GraphicsAdder.GUI.Views.ConvertView">
+  <DockPanel Margin="25">
+    <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" HorizontalContentAlignment="Center" FontSize="20" Command="{Binding StartConversion}" IsEnabled="{Binding !ConversionProgress.InProgress}">Convert</Button>
+    <StackPanel DockPanel.Dock="Top" Spacing="10">
+      <DockPanel VerticalAlignment="Top">
+        <Button DockPanel.Dock="Right" Margin="10,0,0,0" Command="{Binding ChooseSourcePath}" CommandParameter="{Binding $parent[Window]}">Choose</Button>
+        <TextBox Watermark="Source Folder" Text="{Binding Settings.SourcePath}"/>
+      </DockPanel>
+      <CheckBox IsChecked="{Binding Settings.SeparateDestination}">Use Separate Destination Folder</CheckBox>
+      <DockPanel VerticalAlignment="Top" IsVisible="{Binding Settings.SeparateDestination}">
+        <Button DockPanel.Dock="Right" Margin="10,0,0,0" Command="{Binding ChooseDestinationPath}" CommandParameter="{Binding $parent[Window]}">Choose</Button>
+        <TextBox Watermark="Destination Folder" Text="{Binding Settings.DestinationPath}"/>
+      </DockPanel>
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <Button Command="{Binding SetEpicGamesPath}">Load Epic Games</Button>
+        <Button Command="{Binding SetSteamPath}">Load Steam</Button>
+      </StackPanel>
+      <CheckBox IsChecked="{Binding Settings.PlaySound}">Play Sound After Conversion</CheckBox>
+      <StackPanel IsVisible="{Binding ConversionProgress.InProgress}">
+        <DockPanel VerticalAlignment="Top">
+          <Label DockPanel.Dock="Left" Margin="0,0,10,0">Files</Label>
+          <Label DockPanel.Dock="Right">
+            <Label.Content>
+              <MultiBinding StringFormat="\{0\}/\{1\}">
+                <Binding Path="ConversionProgress.CurrentFile"/>
+                <Binding Path="ConversionProgress.Files"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <ProgressBar Value="{Binding ConversionProgress.CurrentFile}" Maximum="{Binding ConversionProgress.Files}"></ProgressBar>
+        </DockPanel>
+      </StackPanel>
+    </StackPanel>
+  </DockPanel>
+</UserControl>

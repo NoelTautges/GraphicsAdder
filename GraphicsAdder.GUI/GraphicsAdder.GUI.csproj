@@ -1,34 +1,37 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+<Project Sdk="Microsoft.NET.Sdk">
+  
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Bins\$(Configuration)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <Compile Remove="Libraries\**" />
-    <EmbeddedResource Remove="Libraries\**" />
-    <None Remove="Libraries\**" />
+    <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <None Remove="classdata.tpk" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <Content Include="classdata.tpk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
+  
   <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
     <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\GraphicsAdder.Common\GraphicsAdder.Common.csproj" />
   </ItemGroup>
@@ -50,5 +53,5 @@
       </PropertyGroup>
     </Otherwise>
   </Choose>
-
+  
 </Project>

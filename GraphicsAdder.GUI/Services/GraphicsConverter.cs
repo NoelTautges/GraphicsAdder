@@ -1,24 +1,26 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using GraphicsAdder.Common;
+using GraphicsAdder.GUI.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using uTinyRipper;
+using uTinyRipper.Classes;
 using uTinyRipper.Classes.Shaders;
-using UnityObject = uTinyRipper.Classes.Object;
-using UnityShader = uTinyRipper.Classes.Shader;
+using Object = uTinyRipper.Classes.Object;
 
-namespace GraphicsAdder
+namespace GraphicsAdder.GUI.Services
 {
-    static class GraphicsAdder
+    public class GraphicsConverter
     {
-        public const int shaderPlatform = (int)ShaderGpuProgramType55.GLCore41;
-        public const bool spoilers = true;
+        private const int ShaderPlatform = (int)ShaderGpuProgramType55.GLCore41;
 
-        static AssetTypeValueField[] GetArray<T>(AssetTypeValueField template, T[] array)
+        AssetTypeValueField[] GetArray<T>(AssetTypeValueField template, T[] array)
         {
             return array.Select(value =>
             {
@@ -28,35 +30,33 @@ namespace GraphicsAdder
             }).ToArray();
         }
 
-        static void ConcatArray<T>(AssetTypeValueField template, T[] array)
+        void ConcatArray<T>(AssetTypeValueField template, T[] array)
         {
             template = template.Get("Array");
             template.SetChildrenList(template.children.Concat(GetArray(template, array)).ToArray());
         }
 
-        static void SetArray<T>(AssetTypeValueField template, T[] array)
+        void SetArray<T>(AssetTypeValueField template, T[] array)
         {
             template = template.Get("Array");
             template.SetChildrenList(GetArray(template, array));
         }
 
-        static bool ConvertFile(AssetsManager am, SerializedFile file, string destPath)
+        void ConvertFile(AssetsManager am, SerializedFile file, string destPath)
         {
             var inst = am.LoadAssetsFile(file.FilePath, false);
             am.LoadClassDatabaseFromPackage(inst.file.typeTree.unityVersion);
             var replacers = new List<AssetsReplacer>();
-            var shaderIndex = 0;
+            var shadersReplaced = false;
 
-            foreach (UnityObject asset in file.FetchAssets())
+            foreach (var (asset, assetIndex) in file.FetchAssets().WithIndex())
             {
-                Console.Write($" - Looking for shader...\r");
-
                 if (asset.ClassID != ClassIDType.Shader)
+                {
                     continue;
+                }
 
-                shaderIndex += 1;
-
-                var shader = (UnityShader)asset;
+                var shader = (Shader)asset;
                 var shaderInfo = inst.table.GetAssetInfo(shader.PathID);
                 var baseField = am.GetTypeInstance(inst.file, shaderInfo).GetBaseField();
                 var replicaBaseField = am.GetTypeInstance(inst.file, shaderInfo).GetBaseField();
@@ -73,13 +73,14 @@ namespace GraphicsAdder
                             direct3DIndex = index;
                             break;
                         case 15:
-                            return false;
+                            return;
                         default:
                             break;
                     }
                 }
 
                 platforms.SetChildrenList(platforms.GetChildrenList().Concat(GetArray(platforms, new int[] { 15 })).ToArray());
+                shadersReplaced = true;
 
                 var cache = new GLSLCache(file.Version);
                 var subShaders = shader.ParsedForm.SubShaders.Length;
@@ -95,13 +96,6 @@ namespace GraphicsAdder
                             var subPrograms = pass.ProgVertex.SubPrograms.Length;
                             for (int i = 0; i < subPrograms; i++)
                             {
-                                var message = $" - Converting shader {(spoilers ? shader.ParsedForm.Name : shaderIndex)} - subshader {subIndex + 1}/{subShaders} - pass {passIndex + 1}/{subShader.Passes.Length} - program {i + 1}/{subPrograms}";
-                                if (message.Length <= Console.WindowWidth)
-                                    Console.Write(message);
-                                else
-                                    Console.Write($"{message.Substring(0, Console.WindowWidth - 3)}...");
-                                Console.Write(new string(' ', Console.WindowWidth - Console.CursorLeft - 1));
-                                Console.CursorLeft = 0;
 
                                 var vertexSubProgram = pass.ProgVertex.SubPrograms[i];
                                 ref var vertex = ref shader.Blobs[direct3DIndex].SubPrograms[vertexSubProgram.BlobIndex];
@@ -140,7 +134,7 @@ namespace GraphicsAdder
                                     "#endif");
 
                                 vertex.ProgramData = Encoding.UTF8.GetBytes(completedProgram);
-                                vertex.ProgramType = shaderPlatform;
+                                vertex.ProgramType = ShaderPlatform;
                                 vertex.BindChannels.Channels = new ShaderBindChannel[0];
                                 vertex.TextureParameters = new TextureParameter[0];
                                 vertex.StructParameters = new StructParameter[0];
@@ -148,7 +142,7 @@ namespace GraphicsAdder
                                 vertex.ConstantBufferBindings = new BufferBinding[0];
 
                                 fragment.ProgramData = new byte[0];
-                                fragment.ProgramType = shaderPlatform;
+                                fragment.ProgramType = ShaderPlatform;
                                 fragment.BindChannels.Channels = new ShaderBindChannel[0];
                                 fragment.TextureParameters = new TextureParameter[0];
                                 fragment.StructParameters = new StructParameter[0];
@@ -159,7 +153,7 @@ namespace GraphicsAdder
                                 var realPass = baseField.Get("m_ParsedForm").Get("m_SubShaders").Get("Array").children[subIndex].Get("m_Passes").Get("Array").children[passIndex];
 
                                 var serializedVertex = replicaPass.Get("progVertex").Get("m_SubPrograms").Get("Array").children[i];
-                                serializedVertex.Get("m_GpuProgramType").GetValue().Set(shaderPlatform);
+                                serializedVertex.Get("m_GpuProgramType").GetValue().Set(ShaderPlatform);
                                 serializedVertex.Get("m_Channels").Get("m_Channels").Get("Array").SetChildrenList(new AssetTypeValueField[0]);
                                 serializedVertex.Get("m_TextureParams").Get("Array").SetChildrenList(new AssetTypeValueField[0]);
                                 serializedVertex.Get("m_ConstantBuffers").Get("Array").SetChildrenList(new AssetTypeValueField[0]);
@@ -168,7 +162,7 @@ namespace GraphicsAdder
                                 vertices.SetChildrenList(vertices.GetChildrenList().Concat(new AssetTypeValueField[] { serializedVertex }).ToArray());
 
                                 var serializedFragment = replicaPass.Get("progFragment").Get("m_SubPrograms").Get("Array").children[bestFragmentIndex];
-                                serializedFragment.Get("m_GpuProgramType").GetValue().Set(shaderPlatform);
+                                serializedFragment.Get("m_GpuProgramType").GetValue().Set(ShaderPlatform);
                                 serializedFragment.Get("m_Channels").Get("m_Channels").Get("Array").SetChildrenList(new AssetTypeValueField[0]);
                                 serializedFragment.Get("m_TextureParams").Get("Array").SetChildrenList(new AssetTypeValueField[0]);
                                 serializedFragment.Get("m_ConstantBuffers").Get("Array").SetChildrenList(new AssetTypeValueField[0]);
@@ -189,83 +183,51 @@ namespace GraphicsAdder
 
                 var newBytes = baseField.WriteToByteArray();
                 replacers.Add(new AssetsReplacerFromMemory(0, shaderInfo.index, (int)shaderInfo.curFileType, 0xFFFF, newBytes));
-
-                if (subShaders > 0)
-                    Console.WriteLine();
             }
 
-            if (File.Exists(destPath))
-                File.Delete(destPath);
-            var writer = new AssetsFileWriter(File.OpenWrite(destPath));
-            inst.file.Write(writer, 0, replacers, 0);
-            writer.Close();
-
-            return shaderIndex > 0;
+            if (shadersReplaced)
+            {
+                if (File.Exists(destPath))
+                    File.Delete(destPath);
+                var writer = new AssetsFileWriter(File.OpenWrite(destPath));
+                inst.file.Write(writer, 0, replacers, 0);
+                writer.Close();
+            }
         }
 
-        static void Main(string[] args)
+        public void StartConversion(IProgress<ConversionProgress> progressCallback, Settings settings)
         {
             var am = new AssetsManager();
-            try
-            {
-                am.LoadClassPackage("classdata.tpk");
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine("classdata.tpk not found! Did you delete it?");
-                Console.WriteLine("Press any key to quit...");
-                Console.ReadKey();
-                Environment.Exit(1);
-            }
+            am.LoadClassPackage("classdata.tpk");
 
-            var outPath = @"OuterWilds_Data_replacement";
-            if (!Directory.Exists(outPath))
-                Directory.CreateDirectory(outPath);
-
-            var inPath = @"C:\Program Files (x86)\Steam\steamapps\common\Outer Wilds\OuterWilds_Data";
-            var structure = GameStructure.Load(new List<string> { inPath });
-            var anyShadersConverted = false;
-            var shadersConverted = false;
-
-            foreach (var file in structure.FileCollection.SerializedFiles)
+            var progress = new ConversionProgress()
             {
+                InProgress = true
+            };
+            progressCallback.Report(progress);
+            var structure = GameStructure.Load(new List<string> { settings.SourcePath });
+            progress.Files = structure.FileCollection.SerializedFiles.Count;
+            var outPath = settings.SeparateDestination ? settings.DestinationPath : settings.SourcePath;
+
+            foreach (var (file, fileIndex) in structure.FileCollection.SerializedFiles.WithIndex())
+            {
+                progress.CurrentFile = fileIndex;
+                progressCallback.Report(progress);
+
                 if (file.Name.IndexOf("level") != -1)
                 {
-                    Console.WriteLine($"Skipping level file {file.Name}");
                     continue;
                 }
 
-                Console.WriteLine($"Reading asset bundle {file.Name}");
-                var destPath = Path.Combine(outPath, Path.GetRelativePath(inPath, file.FilePath));
-                Directory.CreateDirectory(Path.GetDirectoryName(destPath));
-
-                shadersConverted = ConvertFile(am, file, destPath);
-                anyShadersConverted |= shadersConverted;
-                if (!shadersConverted)
+                var destPath = Path.Combine(outPath, Path.GetRelativePath(settings.SourcePath, file.FilePath));
+                var destDir = Path.GetDirectoryName(destPath);
+                if (destDir is not null)
                 {
-                    Console.WriteLine($"Skipping asset bundle {file.Name} because it has GLCore shaders or no shaders at all");
+                    Directory.CreateDirectory(destDir);
                 }
-            }
 
-            if (shadersConverted)
-            {
-                Console.WriteLine("\n");
+                ConvertFile(am, file, destPath);
             }
-            else
-            {
-                Console.WriteLine();
-            }
-            Console.WriteLine("Done!");
-            if (!anyShadersConverted)
-            {
-                Console.WriteLine("No bundles were modified. No copying is necessary. :)");
-            }
-            else
-            {
-                Console.WriteLine($"Copy the files from {outPath} to {inPath}, but make backups first or you'll need to reinstall the game to get back. :)");
-            }
-            Console.WriteLine("Press any key to quit...");
-            Console.ReadKey();
         }
     }
 }

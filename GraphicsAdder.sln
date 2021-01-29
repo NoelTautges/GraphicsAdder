@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphicsAdder", "GraphicsAdder\GraphicsAdder.csproj", "{F62CE16B-121B-46C1-A2C0-1331D53FAEEC}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bins", "Bins", "{56DCACC6-A151-4A01-8130-076035ADB0DA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Debug", "Debug", "{999E6F34-E77D-4EA7-9CC5-F6A361E5A3E4}"
@@ -21,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderView", "ShaderView\Sh
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphicsAdder.Common", "GraphicsAdder.Common\GraphicsAdder.Common.csproj", "{02634A61-FB87-45B3-800F-736DDC36F7B8}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphicsAdder.GUI", "GraphicsAdder.GUI\GraphicsAdder.GUI.csproj", "{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +29,6 @@ Global
 		Release|x64 = Release|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F62CE16B-121B-46C1-A2C0-1331D53FAEEC}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{F62CE16B-121B-46C1-A2C0-1331D53FAEEC}.Debug|x64.ActiveCfg = Debug|x64
-		{F62CE16B-121B-46C1-A2C0-1331D53FAEEC}.Debug|x64.Build.0 = Debug|x64
-		{F62CE16B-121B-46C1-A2C0-1331D53FAEEC}.Release|Any CPU.ActiveCfg = Release|x64
-		{F62CE16B-121B-46C1-A2C0-1331D53FAEEC}.Release|x64.ActiveCfg = Release|x64
-		{F62CE16B-121B-46C1-A2C0-1331D53FAEEC}.Release|x64.Build.0 = Release|x64
 		{21928360-1C34-4F23-8F71-ADF628AC7220}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{21928360-1C34-4F23-8F71-ADF628AC7220}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21928360-1C34-4F23-8F71-ADF628AC7220}.Debug|x64.ActiveCfg = Debug|x64
@@ -51,6 +45,14 @@ Global
 		{02634A61-FB87-45B3-800F-736DDC36F7B8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{02634A61-FB87-45B3-800F-736DDC36F7B8}.Release|x64.ActiveCfg = Release|x64
 		{02634A61-FB87-45B3-800F-736DDC36F7B8}.Release|x64.Build.0 = Release|x64
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Debug|x64.ActiveCfg = Debug|x64
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Debug|x64.Build.0 = Debug|x64
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Release|x64.ActiveCfg = Release|x64
+		{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
