@@ -29,9 +29,10 @@ namespace GraphicsAdder.GUI.ViewModels
         public async void OpenFolderPicker(Window window, string origin)
         {
             var dialog = new OpenFolderDialog();
+            dialog.Title = $"Choose {origin} Folder"
             var result = await dialog.ShowAsync(window);
 
-            if (origin == "source")
+            if (origin == "Source")
             {
                 Settings.SourcePath = result;
             }
@@ -41,8 +42,8 @@ namespace GraphicsAdder.GUI.ViewModels
             }
         }
 
-        public void ChooseSourcePath(Window window) => OpenFolderPicker(window, "source");
-        public void ChooseDestinationPath(Window window) => OpenFolderPicker(window, "destination");
+        public void ChooseSourcePath(Window window) => OpenFolderPicker(window, "Source");
+        public void ChooseDestinationPath(Window window) => OpenFolderPicker(window, "Destination");
 
         public void SetEpicGamesPath() => throw new NotImplementedException();
         public void SetSteamPath()
