@@ -34,6 +34,11 @@ namespace GraphicsAdder.GUI.ViewModels
             };
             var result = await dialog.ShowAsync(window);
 
+            if (result == "")
+            {
+                return;
+            }
+
             if (origin == "Source")
             {
                 Settings.SourcePath = result;
