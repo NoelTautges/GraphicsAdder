@@ -26,7 +26,7 @@ namespace GraphicsAdder.GUI.ViewModels
             ConversionProgress = conversionProgress = new ConversionProgress();
         }
 
-        public async void OpenFolderPicker(Window window, string origin)
+        public async void OpenFolder(Window window, string origin)
         {
             var dialog = new OpenFolderDialog()
             {
@@ -49,8 +49,8 @@ namespace GraphicsAdder.GUI.ViewModels
             }
         }
 
-        public void ChooseSourcePath(Window window) => OpenFolderPicker(window, "Source");
-        public void ChooseDestinationPath(Window window) => OpenFolderPicker(window, "Destination");
+        public void ChooseSourcePath(Window window) => OpenFolder(window, "Source");
+        public void ChooseDestinationPath(Window window) => OpenFolder(window, "Destination");
 
         public void SetEpicGamesPath() => throw new NotImplementedException();
         public void SetSteamPath()
