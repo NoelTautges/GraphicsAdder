@@ -28,8 +28,10 @@ namespace GraphicsAdder.GUI.ViewModels
 
         public async void OpenFolderPicker(Window window, string origin)
         {
-            var dialog = new OpenFolderDialog();
-            dialog.Title = $"Choose {origin} Folder"
+            var dialog = new OpenFolderDialog()
+            {
+                Title = $"Choose {origin} Folder"
+            };
             var result = await dialog.ShowAsync(window);
 
             if (origin == "Source")
