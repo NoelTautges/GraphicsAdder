@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphicsAdder.Common", "GraphicsAdder.Common\GraphicsAdder.Common.csproj", "{02634A61-FB87-45B3-800F-736DDC36F7B8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphicsAdder", "GraphicsAdder.GUI\GraphicsAdder.csproj", "{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphicsAdder", "GraphicsAdder\GraphicsAdder.csproj", "{74F2D5D6-1D17-4D6C-834A-B8C27E34C038}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderView", "ShaderView\ShaderView.csproj", "{315E7E14-285A-4B04-8551-36BE2C59F079}"
 EndProject
