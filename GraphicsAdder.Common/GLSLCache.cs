@@ -59,19 +59,23 @@ namespace GraphicsAdder.Common
         {
             var startLines = glsl.Split("\n");
             var endLines = new List<string>(startLines.Length);
+            bool pastHeader = false;
             bool inLayout = false;
             bool inStruct = false;
             var structNames = new List<string>();
 
             foreach (var line in startLines)
             {
-                if ((line.StartsWith('#') && line.IndexOf("#extension") == -1 && line.IndexOf("#version") == -1) ||
-                    line.IndexOf("unused") != -1)
+                if (!pastHeader && line == "")
+                {
+                    pastHeader = true;
+                }
+                else if (pastHeader && line.StartsWith('#') || line.IndexOf("unused") != -1)
                 {
                     continue;
                 }
 
-                if (line.IndexOf("layout(std140)") != -1)
+                if (line.IndexOf("layout(std140)") != -1 && line.IndexOf("UnityInstancing") == -1)
                 {
                     inLayout = true;
                     continue;
@@ -128,12 +132,7 @@ namespace GraphicsAdder.Common
 
             foreach (var structName in structNames)
             {
-                if (structName == "unity_Builtins0Array")
-                {
-                    continue;
-                }
-
-                processed = processed.Replace($"{structName}.{structName}", structName);
+                processed = processed.Replace($".{structName}.", ".");
             }
 
             return processed;
