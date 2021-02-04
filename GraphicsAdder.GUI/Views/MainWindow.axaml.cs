@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace GraphicsAdder.GUI.Views
+namespace GraphicsAdder.Views
 {
     public class MainWindow : Window
     {

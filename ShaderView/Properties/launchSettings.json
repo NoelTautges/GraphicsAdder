@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ShaderView": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

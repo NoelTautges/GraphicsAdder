@@ -1,9 +1,9 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using GraphicsAdder.ViewModels;
+using ShaderView.ViewModels;
 using System;
 
-namespace GraphicsAdder
+namespace ShaderView
 {
     public class ViewLocator : IDataTemplate
     {

@@ -1,6 +1,6 @@
 ﻿using ReactiveUI;
 
-namespace GraphicsAdder.GUI.Models
+namespace GraphicsAdder.Models
 {
     public class ConversionProgress : ReactiveObject
     {

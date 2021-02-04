@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
-using GraphicsAdder.GUI.Models;
-using GraphicsAdder.GUI.Services;
+using GraphicsAdder.Models;
+using GraphicsAdder.Services;
 using ReactiveUI;
 using System;
 using System.Diagnostics;
@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace GraphicsAdder.GUI.ViewModels
+namespace GraphicsAdder.ViewModels
 {
     public class ConvertViewModel : ViewModelBase
     {

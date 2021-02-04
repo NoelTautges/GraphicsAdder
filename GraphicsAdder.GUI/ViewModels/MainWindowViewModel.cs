@@ -1,6 +1,6 @@
-using GraphicsAdder.GUI.Services;
+using GraphicsAdder.Services;
 
-namespace GraphicsAdder.GUI.ViewModels
+namespace GraphicsAdder.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {

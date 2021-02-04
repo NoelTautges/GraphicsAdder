@@ -1,11 +1,11 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using GraphicsAdder.Services;
-using GraphicsAdder.ViewModels;
-using GraphicsAdder.Views;
+using ShaderView.Services;
+using ShaderView.ViewModels;
+using ShaderView.Views;
 
-namespace GraphicsAdder
+namespace ShaderView
 {
     public class App : Application
     {
@@ -18,12 +18,11 @@ namespace GraphicsAdder
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var settingsJson = new SettingsJson();
-                var graphicsConverter = new GraphicsConverter();
+                var shaderLoader = new ShaderLoader();
 
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(settingsJson, graphicsConverter),
+                    DataContext = new MainWindowViewModel(shaderLoader),
                 };
             }
 

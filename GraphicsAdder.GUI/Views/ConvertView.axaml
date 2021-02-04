@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="340"
-             x:Class="GraphicsAdder.GUI.Views.ConvertView">
+             x:Class="GraphicsAdder.Views.ConvertView">
   <DockPanel Margin="25">
     <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" HorizontalContentAlignment="Center" FontSize="20" Command="{Binding StartConversion}" IsEnabled="{Binding !ConversionProgress.InProgress}">Convert</Button>
     <StackPanel DockPanel.Dock="Top" Spacing="10">

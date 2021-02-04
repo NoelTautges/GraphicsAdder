@@ -1,7 +1,7 @@
 ﻿using AssetsTools.NET;
 using AssetsTools.NET.Extra;
 using GraphicsAdder.Common;
-using GraphicsAdder.GUI.Models;
+using GraphicsAdder.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +14,7 @@ using uTinyRipper.Classes;
 using uTinyRipper.Classes.Shaders;
 using Object = uTinyRipper.Classes.Object;
 
-namespace GraphicsAdder.GUI.Services
+namespace GraphicsAdder.Services
 {
     public class GraphicsConverter
     {

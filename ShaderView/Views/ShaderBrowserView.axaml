@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:models="clr-namespace:ShaderView.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ShaderView.Views.ShaderBrowserView">
+
+  <DockPanel>
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Header="_Open (Ctrl+O)" Command="{Binding OpenFolder}" CommandParameter="{Binding $parent[Window]}">
+          <MenuItem.HotKey>
+            <KeyGesture>Ctrl+O</KeyGesture>
+          </MenuItem.HotKey>
+        </MenuItem>
+        <MenuItem Header="Close (Ctrl+W)" IsEnabled="{Binding FolderOpened}" Command="{Binding CloseFolder}" CommandParameter="{Binding $parent[Window]}">
+          <MenuItem.HotKey>
+            <KeyGesture>Ctrl+W</KeyGesture>
+          </MenuItem.HotKey>
+        </MenuItem>
+      </MenuItem>
+    </Menu>
+    <Label DockPanel.Dock="Top" IsVisible="{Binding !FolderOpened}" HorizontalAlignment="Center">Open a folder from File > Open</Label>
+    <Grid ColumnDefinitions="1*,2*" IsVisible="{Binding FolderOpened}" Margin="10">
+      <ScrollViewer Grid.Column="0" ScrollViewer.HorizontalScrollBarVisibility="Auto">
+        <TreeView Items="{Binding ContentsList}" x:Name="contentsList">
+          <TreeView.DataTemplates>
+            <TreeDataTemplate DataType="models:ComponentListing" ItemsSource="{Binding Children}">
+              <TextBlock Text="{Binding Name}"/>
+            </TreeDataTemplate>
+          </TreeView.DataTemplates>
+        </TreeView>
+      </ScrollViewer>
+      <DockPanel Grid.Column="1" IsVisible="{Binding ProgramSelected}" Margin="10,0,0,0">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10" Spacing="10" Orientation="Horizontal">
+          <Button IsEnabled="{Binding ProgramHasDXBC}" Command="{Binding DisplayUnprocessedConvertedGLSL}" Content="Unprocessed Converted GLSL"/>
+          <Button IsEnabled="{Binding ProgramHasDXBC}" Command="{Binding DisplayProcessedConvertedGLSL}" Content="Processed Converted GLSL"/>
+          <Button IsEnabled="{Binding ProgramHasGLSL}" Command="{Binding DisplayOriginalGLSL}" Content="Original GLSL"/>
+        </StackPanel>
+        <TextBox IsReadOnly="True" Text="{Binding ProgramText}"/>
+      </DockPanel>
+    </Grid>
+  </DockPanel>
+  
+</UserControl>

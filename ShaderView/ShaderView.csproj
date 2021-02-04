@@ -1,20 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+  
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Bins\$(Configuration)\</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
-
+  
   <ItemGroup>
-    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
-    <PackageReference Include="Terminal.Gui" Version="1.0.0-pre.6" />
-    <PackageReference Include="WinCopies.WindowsAPICodePack.Shell" Version="3.0.0-preview" />
+    <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.0" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.0" />
+    <PackageReference Include="K4os.Compression.LZ4" Version="1.2.6" />
+  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\GraphicsAdder.Common\GraphicsAdder.Common.csproj" />
   </ItemGroup>

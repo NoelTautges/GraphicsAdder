@@ -1,9 +1,9 @@
-﻿using GraphicsAdder.GUI.Models;
+﻿using GraphicsAdder.Models;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace GraphicsAdder.GUI.Services
+namespace GraphicsAdder.Services
 {
     public class SettingsJson
     {
