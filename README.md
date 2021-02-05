@@ -2,6 +2,14 @@
 
 A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusdigitalgames.com/outer-wilds.html) to OpenGL as a first step to port it to other platforms.
 
+## Important notes: read before using
+
+- **Do not use the modified version of Outer Wilds if you are photosensitive.** The intro and main menu are currently subject to a bug with flashing blue lights. I cannot guarantee the safety of the game after this point either; for example, black boxes flicker frequently while on the Ash Twin's surface.
+
+- **You convert your files at your own risk.** While I have ironed out all discovered bugs where Outer Wilds crashes as a result of using DirectX with converted files, I cannot guarantee it will never crash.
+
+- **This tool will not corrupt your saves**, even if you replace the game files, because they are stored in a separate folder.
+
 ## How do I use it?
 
 1.) Make sure you're on Windows and have the Steam version of Outer Wilds installed
@@ -19,12 +27,6 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, most of the in-game GUI, and a spaceship with all the RGB lights Slate could afford from Hearthian Fry's Electronics!
 
 8.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
-
-### Important notes
-
-- While I have ironed out all discovered bugs where Outer Wilds crashes as a result of using DirectX with converted files, I cannot guarantee it will never crash. **You convert your files at your own risk.**
-
-- **This tool will not corrupt your saves**, even if you replace the game files, because they are stored in a separate folder.
 
 ## How do I build it?
 
