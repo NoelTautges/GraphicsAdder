@@ -1,6 +1,6 @@
 # GraphicsAdder
 
-A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobiusdigitalgames.com/outer-wilds.html) to OpenGL as a first step to port it to other platforms.
+A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusdigitalgames.com/outer-wilds.html) to OpenGL as a first step to port it to other platforms.
 
 ## How do I use it?
 
@@ -8,21 +8,21 @@ A program that converts the Direct3D shaders of [Outer Wilds](https://www.mobius
 
 2.) Download the latest release version of GraphicsAdder from the releases tab to the right
 
-3.) Extract the zip file, run `GraphicsAdder.exe`, and wait for it to finish
+3.) Back up your `OuterWilds_Data` folder (open by right clicking on Outer Wilds in Steam > Local Files > Browse) in case something goes wrong
 
-4.) Check which files it generated in the `OuterWilds_Data_replacement` folder and back up those same files from your `OuterWilds_Data` folder (right click on Outer Wilds in Steam > Local Files > Browse) if you don't want to reinstall the game in case something goes wrong
+4.) Extract the zip file, run `GraphicsAdder.exe`, click Load Steam and Convert, and wait for it to finish
 
 5.) Drag the files from `OuterWilds_Data_replacement` to `OuterWilds_Data` and hit replace
 
 6.) Right click on Outer Wilds in Steam > Properties > Add `-force-glcore -force-gfx-without-build` to Launch Options
 
-7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, censor bars everywhere, and a spaceship with all the RGB lights Slate could afford from Hearthian Fry's Electronics!
+7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, most of the in-game GUI, and a spaceship with all the RGB lights Slate could afford from Hearthian Fry's Electronics!
 
 8.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
 
 ### Important notes
 
-- While I have ironed out all discovered bugs where Outer Wilds crashes as a result of using Direct3D with converted files, I cannot guarantee it will never crash. **You convert your files at your own risk.**
+- While I have ironed out all discovered bugs where Outer Wilds crashes as a result of using DirectX with converted files, I cannot guarantee it will never crash. **You convert your files at your own risk.**
 
 - **This tool will not corrupt your saves**, even if you replace the game files, because they are stored in a separate folder.
 
@@ -48,8 +48,8 @@ Shoot me a DM over at [my Twitter](https://twitter.com/NoelTautges) or [my Reddi
 
 1.) Epic Games Store support
 
-2.) Automatic backup, replace, and restore for game files
+2.) Automatic backup, and restore for game files
 
-3.) Generalization to all Direct3D-exclusive Unity games
+3.) Generalization to all DirectX-exclusive Unity games
 
 4.) Make all shaders actually work (low priority)
