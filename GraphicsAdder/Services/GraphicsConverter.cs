@@ -42,25 +42,34 @@ namespace GraphicsAdder.Services
             template.SetChildrenList(GetArray(template, array));
         }
 
+        void AddReplacer(List<AssetsReplacer> replacers, AssetFileInfoEx assetInfo, AssetTypeValueField baseField) =>
+            replacers.Add(new AssetsReplacerFromMemory(0, assetInfo.index, (int)assetInfo.curFileType, 0xFFFF, baseField.WriteToByteArray()));
+
         void ConvertFile(AssetsManager am, SerializedFile file, string destPath)
         {
             var inst = am.LoadAssetsFile(file.FilePath, false);
             am.LoadClassDatabaseFromPackage(inst.file.typeTree.unityVersion);
             var replacers = new List<AssetsReplacer>();
-            var shadersReplaced = false;
 
             foreach (var (asset, assetIndex) in file.FetchAssets().WithIndex())
             {
-                if (asset.ClassID != ClassIDType.Shader)
+                if (asset.ClassID != ClassIDType.BuildSettings && asset.ClassID != ClassIDType.Shader)
                 {
                     continue;
                 }
 
-                var shader = (Shader)asset;
-                var shaderInfo = inst.table.GetAssetInfo(shader.PathID);
-                var baseField = am.GetTypeInstance(inst.file, shaderInfo).GetBaseField();
-                var replicaBaseField = am.GetTypeInstance(inst.file, shaderInfo).GetBaseField();
+                var assetInfo = inst.table.GetAssetInfo(asset.PathID);
+                var baseField = am.GetTypeInstance(inst.file, assetInfo).GetBaseField();
+                var replicaBaseField = am.GetTypeInstance(inst.file, assetInfo).GetBaseField();
 
+                if (asset.ClassID == ClassIDType.BuildSettings)
+                {
+                    ConcatArray(baseField.Get("m_GraphicsAPIs"), new int[] { 17 });
+                    AddReplacer(replacers, assetInfo, baseField);
+                    continue;
+                }
+
+                var shader = (Shader)asset;
                 var platforms = baseField.Get("platforms").Get("Array");
                 var direct3DIndex = -1;
                 foreach (var (platform, index) in platforms.GetChildrenList().WithIndex())
@@ -80,7 +89,6 @@ namespace GraphicsAdder.Services
                 }
 
                 platforms.SetChildrenList(platforms.GetChildrenList().Concat(GetArray(platforms, new int[] { 15 })).ToArray());
-                shadersReplaced = true;
 
                 var cache = new GLSLCache(file.Version);
                 var subShaders = shader.ParsedForm.SubShaders.Length;
@@ -181,11 +189,10 @@ namespace GraphicsAdder.Services
                     SetArray(baseField.Get("compressedBlob"), memStream.ToArray());
                 }
 
-                var newBytes = baseField.WriteToByteArray();
-                replacers.Add(new AssetsReplacerFromMemory(0, shaderInfo.index, (int)shaderInfo.curFileType, 0xFFFF, newBytes));
+                AddReplacer(replacers, assetInfo, baseField);
             }
 
-            if (shadersReplaced)
+            if (replacers.Count > 0)
             {
                 if (File.Exists(destPath))
                     File.Delete(destPath);

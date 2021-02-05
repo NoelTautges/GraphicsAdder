@@ -22,7 +22,7 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 
 5.) Drag the files from `OuterWilds_Data_replacement` to `OuterWilds_Data` and hit replace
 
-6.) Right click on Outer Wilds in Steam > Properties > Add `-force-glcore -force-gfx-without-build` to Launch Options
+6.) Right click on Outer Wilds in Steam > Properties > Add `-force-glcore` to Launch Options
 
 7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, most of the in-game GUI, and a spaceship with all the RGB lights Slate could afford from Hearthian Fry's Electronics!
 
