@@ -1,5 +1,4 @@
 ﻿using DXShaderRestorer;
-using GraphicsAdder.Common;
 using HLSLccWrapper;
 using System;
 using System.Collections.Generic;
@@ -12,25 +11,22 @@ namespace GraphicsAdder.Common
 {
     public class GLSLCache
     {
-        public UnityVersion Version;
-        private Dictionary<string, string> UnprocessedMap;
-        private Dictionary<string, string> ProcessedMap;
-        private Dictionary<string, List<string>> Replacements = new Dictionary<string, List<string>>()
+        private UnityVersion version;
+        private Dictionary<string, string> unprocessedMap;
+        private Dictionary<string, string> processedMap;
+        private List<string> Replacements = new()
         {
-            {
-                "Hidden/Post FX/SubpixelMorphologicalAntialiasing",
-                new List<string> {
-                    "SV_Target0 = textureLod(_MainTex, vs_TEXCOORD0.xy, 0.0);",
-                    "SV_Target0 = textureLod(_MainTex, vec2(vs_TEXCOORD0.x, 1 - vs_TEXCOORD0.y), 0.0);"
-                }
-            }
+            "SV_Target0 = textureLod(_MainTex, vs_TEXCOORD0.xy, 0.0);",
+            "SV_Target0 = textureLod(_MainTex, vec2(vs_TEXCOORD0.x, 1 - vs_TEXCOORD0.y), 0.0);",
+            "inversesqrt(",
+            "inversesqrt(0.00000000001 + "
         };
 
         public GLSLCache(UnityVersion version)
         {
-            Version = version;
-            UnprocessedMap = new Dictionary<string, string>();
-            ProcessedMap = new Dictionary<string, string>();
+            this.version = version;
+            unprocessedMap = new Dictionary<string, string>();
+            processedMap = new Dictionary<string, string>();
         }
 
         private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
@@ -123,11 +119,10 @@ namespace GraphicsAdder.Common
             }
 
             var processed = string.Join('\n', endLines);
-            var replacements = Replacements.GetValueOrDefault(shaderName, new List<string>());
 
-            for (int i = 0; i < Math.Floor(replacements.Count / 2.0); i++)
+            for (int i = 0; i < Math.Floor(Replacements.Count / 2.0); i++)
             {
-                processed = processed.Replace(replacements[i * 2], replacements[i * 2 + 1]);
+                processed = processed.Replace(Replacements[i * 2], Replacements[i * 2 + 1]);
             }
 
             foreach (var structName in structNames)
@@ -141,12 +136,12 @@ namespace GraphicsAdder.Common
         public string GetGLSL(ShaderSubProgram program, string shaderName, uint blobIndex, bool unprocessed = false)
         {
             var key = $"{shaderName}-{blobIndex}";
-            var map = unprocessed ? UnprocessedMap : ProcessedMap;
+            var map = unprocessed ? unprocessedMap : processedMap;
 
             if (!map.ContainsKey(key))
             {
-                UnprocessedMap[key] = ConvertToGLSL(program, Version);
-                ProcessedMap[key] = ProcessGLSL(UnprocessedMap[key], shaderName);
+                unprocessedMap[key] = ConvertToGLSL(program, version);
+                processedMap[key] = ProcessGLSL(unprocessedMap[key], shaderName);
             }
 
             return map[key];
