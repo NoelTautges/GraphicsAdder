@@ -4,7 +4,7 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 
 ## Important notes: read before using
 
-- **Do not use the modified version of Outer Wilds if you are photosensitive.** The intro and main menu are currently subject to a bug with flashing blue lights. I cannot guarantee the safety of the game after this point either; for example, black boxes flicker frequently while on the Ash Twin's surface.
+- **Do not use the modified version of Outer Wilds if you are photosensitive.** The intro and main menu are no longer subject to blue strobe lights, but I cannot guarantee the safety of the game after this point; for example, black boxes flicker frequently while looking at the surface of the Ash Twin.
 
 - **You convert your files at your own risk.** While I have ironed out all discovered bugs where Outer Wilds crashes as a result of using DirectX with converted files, I cannot guarantee it will never crash.
 
@@ -24,15 +24,15 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 
 6.) Right click on Outer Wilds in Steam > Properties > Add `-force-glcore` to Launch Options
 
-7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, most of the in-game GUI, and a spaceship with all the RGB lights Slate could afford from Hearthian Fry's Electronics!
+7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, most of the in-game GUI, and far too dithery geysers!
 
 8.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
 
 ## How do I build it?
 
-Open GraphicsAdder.sln in Visual Studio and hit build. Only x64 is supported at the moment.
+Open `GraphicsAdder.sln` in Visual Studio and hit build. Only x64 is supported at the moment.
 
-Non-NuGet dependencies are included in `GraphicsAdder\Libraries`.
+Non-NuGet dependencies are included in `Libraries`.
 
 ### Dependencies
 
