@@ -19,9 +19,7 @@ namespace GraphicsAdder.Common
             "SV_Target0 = textureLod(_MainTex, vs_TEXCOORD0.xy, 0.0);",
             "SV_Target0 = textureLod(_MainTex, vec2(vs_TEXCOORD0.x, 1 - vs_TEXCOORD0.y), 0.0);",
             "inversesqrt(",
-            "inversesqrt(0.00000000001 + ",
-            "in_TANGENT0.w",
-            "-in_TANGENT0.w"
+            "inversesqrt(0.00000000001 + "
         };
 
         public GLSLCache(UnityVersion version)
