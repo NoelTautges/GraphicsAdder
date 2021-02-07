@@ -4,7 +4,7 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 
 ## Important notes: read before using
 
-- **Do not use the modified version of Outer Wilds if you are photosensitive.** The intro and main menu are no longer subject to blue strobe lights, but I cannot guarantee the safety of the game after this point; for example, black boxes flicker frequently while looking at the surface of the Ash Twin.
+- **Do not use the modified version of Outer Wilds if you are photosensitive.** The intro and main menu are no longer subject to blue strobe lights, but I cannot guarantee the safety of the game after this point.
 
 - **You convert your files at your own risk.** While I have ironed out all discovered bugs where Outer Wilds crashes as a result of using DirectX with converted files, I cannot guarantee it will never crash.
 
