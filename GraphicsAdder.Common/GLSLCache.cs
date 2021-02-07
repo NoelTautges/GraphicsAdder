@@ -19,7 +19,9 @@ namespace GraphicsAdder.Common
             "SV_Target0 = textureLod(_MainTex, vs_TEXCOORD0.xy, 0.0);",
             "SV_Target0 = textureLod(_MainTex, vec2(vs_TEXCOORD0.x, 1 - vs_TEXCOORD0.y), 0.0);",
             "inversesqrt(",
-            "inversesqrt(0.00000000001 + "
+            "inversesqrt(0.00000000001 + ",
+            "gl_FragDepth =",
+            "gl_FragDepth = 1.0 - 2.0 *"
         };
 
         public GLSLCache(UnityVersion version)
