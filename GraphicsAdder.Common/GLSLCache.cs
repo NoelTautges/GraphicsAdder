@@ -77,7 +77,7 @@ namespace GraphicsAdder.Common
                     continue;
                 }
 
-                if (line.IndexOf("layout(std140)") != -1 && line.IndexOf("UnityInstancing") == -1)
+                if (line.IndexOf("layout(std140)") != -1 && !line.StartsWith("UnityInstancing"))
                 {
                     inLayout = true;
                     continue;
