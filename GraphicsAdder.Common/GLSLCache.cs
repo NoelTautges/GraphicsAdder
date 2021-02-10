@@ -25,7 +25,9 @@ namespace GraphicsAdder.Common
             "gl_FragDepth =",
             "gl_FragDepth = 1.0 - 2.0 *",
             "u_xlat34 = float(1.0) / u_xlat34;",
-            $"u_xlat34 = float(1.0) / (u_xlat34 + {SmallConstant});"
+            $"u_xlat34 = float(1.0) / (u_xlat34 + {SmallConstant});",
+            "u_xlat4 = texture(_LightTextureB0, vec2(u_xlat33));",
+            "u_xlat4 = vec4(texture(_LightTextureB0, vec2(u_xlat33)).w);"
         };
 
         public GLSLCache(UnityVersion version)
