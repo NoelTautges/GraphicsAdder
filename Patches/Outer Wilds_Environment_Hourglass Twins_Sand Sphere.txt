@@ -1,2 +1,2 @@
 u_xlat34 = float(1.0) / u_xlat34;
-u_xlat34 = float(1.0) / (u_xlat34 + {SmallConstant});
+u_xlat34 = float(1.0) / (u_xlat34 + {SmallFloat});
