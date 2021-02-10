@@ -1,0 +1,4 @@
+﻿inversesqrt(
+inversesqrt({SmallConstant} + 
+gl_FragDepth =
+gl_FragDepth = 1.0 - 2.0 *

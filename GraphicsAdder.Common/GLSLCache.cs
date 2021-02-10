@@ -1,5 +1,6 @@
 ﻿using DXShaderRestorer;
 using HLSLccWrapper;
+using SmartFormat;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,37 +12,37 @@ namespace GraphicsAdder.Common
 {
     public class GLSLCache
     {
-        private const double SmallConstant = 0.00000000001;
+        private readonly Dictionary<string, object> Constants = new()
+        {
+            { "SmallFloat", 0.0001 }
+        };
 
         private UnityVersion version;
-        private Dictionary<string, string> unprocessedMap;
-        private Dictionary<string, string> processedMap;
-        private List<string> Replacements = new()
-        {
-            "SV_Target0 = textureLod(_MainTex, vs_TEXCOORD0.xy, 0.0);",
-            "SV_Target0 = textureLod(_MainTex, vec2(vs_TEXCOORD0.x, 1 - vs_TEXCOORD0.y), 0.0);",
-            "inversesqrt(",
-            $"inversesqrt({SmallConstant} + ",
-            "gl_FragDepth =",
-            "gl_FragDepth = 1.0 - 2.0 *",
-            "u_xlat34 = float(1.0) / u_xlat34;",
-            $"u_xlat34 = float(1.0) / (u_xlat34 + {SmallConstant});",
-            "u_xlat4 = texture(_LightTextureB0, vec2(u_xlat33));",
-            "u_xlat4 = vec4(texture(_LightTextureB0, vec2(u_xlat33)).w);"
-        };
+        private Dictionary<string, string> unprocessedMap = new();
+        private Dictionary<string, string> processedMap = new();
+        private Dictionary<string, List<string>> replacements = new();
 
         public GLSLCache(UnityVersion version)
         {
             this.version = version;
-            unprocessedMap = new Dictionary<string, string>();
-            processedMap = new Dictionary<string, string>();
+
+            foreach (var path in Directory.EnumerateFiles("Patches"))
+            {
+                var name = Path.GetFileName(path).Replace("_", "/").Replace(".txt", "");
+                replacements.Add(name, new());
+
+                foreach (var line in File.ReadLines(path))
+                {
+                    replacements[name].Add(Smart.Format(line.Replace("\n", ""), Constants));
+                }
+            }
         }
 
         private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
         {
-            using (MemoryStream stream = new MemoryStream(program.ProgramData.Skip(6).ToArray()))
+            using (var stream = new MemoryStream(program.ProgramData.Skip(6).ToArray()))
             {
-                using (BinaryReader reader = new BinaryReader(stream))
+                using (var reader = new BinaryReader(stream))
                 {
                     byte[] restoredData = DXShaderProgramRestorer.RestoreProgramData(reader, version, ref program);
                     WrappedGlExtensions ext = new WrappedGlExtensions();
@@ -79,7 +80,7 @@ namespace GraphicsAdder.Common
                     continue;
                 }
 
-                if (line.IndexOf("layout(std140)") != -1 && !line.StartsWith("UnityInstancing"))
+                if (line.IndexOf("layout(std140)") != -1 && line.IndexOf("UnityInstancing") == -1)
                 {
                     inLayout = true;
                     continue;
@@ -128,9 +129,19 @@ namespace GraphicsAdder.Common
 
             var processed = string.Join('\n', endLines);
 
-            for (int i = 0; i < Math.Floor(Replacements.Count / 2.0); i++)
+            if (replacements.TryGetValue("general", out var generalReplacements))
             {
-                processed = processed.Replace(Replacements[i * 2], Replacements[i * 2 + 1]);
+                for (int i = 0; i < Math.Floor(generalReplacements.Count / 2.0); i++)
+                {
+                    processed = processed.Replace(generalReplacements[i * 2], generalReplacements[i * 2 + 1]);
+                }
+            }
+            if (replacements.TryGetValue(shaderName, out var specificReplacements))
+            {
+                for (int i = 0; i < Math.Floor(specificReplacements.Count / 2.0); i++)
+                {
+                    processed = processed.Replace(specificReplacements[i * 2], specificReplacements[i * 2 + 1]);
+                }
             }
 
             foreach (var structName in structNames)
@@ -149,7 +160,7 @@ namespace GraphicsAdder.Common
             if (!map.ContainsKey(key))
             {
                 unprocessedMap[key] = ConvertToGLSL(program, version);
-                processedMap[key] = ProcessGLSL(unprocessedMap[key], shaderName);
+                processedMap[key] = ProcessGLSL(unprocessedMap[key], shaderName.Split(" (")[0]);
             }
 
             return map[key];

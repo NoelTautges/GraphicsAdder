@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>..\Bins\$(Configuration)\</OutputPath>
@@ -24,5 +25,13 @@
       </ItemGroup>
     </Otherwise>
   </Choose>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(SolutionDir)\Patches&quot; &quot;$(TargetDir)\Patches&quot; /D /I /Y" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="SmartFormat.NET" Version="2.5.3" />
+  </ItemGroup>
 
 </Project>
