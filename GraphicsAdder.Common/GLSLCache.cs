@@ -53,7 +53,10 @@ namespace GraphicsAdder.Common
                     ext.EXT_shader_framebuffer_fetch = 0;
                     Shader shader = Shader.TranslateFromMem(restoredData, WrappedGLLang.LANG_410, ext);
 
-                    if (shader.OK == 0) throw new InvalidDataException();
+                    if (shader.OK == 0)
+                    {
+                        throw new InvalidDataException();
+                    }
 
                     return shader.Text;
                 }
