@@ -40,36 +40,32 @@ namespace GraphicsAdder.Common
 
         private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
         {
-            using (var stream = new MemoryStream(program.ProgramData.Skip(6).ToArray()))
+            using var stream = new MemoryStream(program.ProgramData.Skip(6).ToArray());
+            using var reader = new BinaryReader(stream);
+            var restoredData = DXShaderProgramRestorer.RestoreProgramData(reader, version, ref program);
+            var ext = new WrappedGlExtensions();
+            ext.ARB_explicit_attrib_location = 1;
+            ext.ARB_explicit_uniform_location = 0;
+            ext.ARB_shading_language_420pack = 0;
+            ext.OVR_multiview = 0;
+            ext.EXT_shader_framebuffer_fetch = 0;
+            var shader = Shader.TranslateFromMem(restoredData, WrappedGLLang.LANG_410, ext);
+
+            if (shader.OK == 0)
             {
-                using (var reader = new BinaryReader(stream))
-                {
-                    byte[] restoredData = DXShaderProgramRestorer.RestoreProgramData(reader, version, ref program);
-                    WrappedGlExtensions ext = new WrappedGlExtensions();
-                    ext.ARB_explicit_attrib_location = 1;
-                    ext.ARB_explicit_uniform_location = 0;
-                    ext.ARB_shading_language_420pack = 0;
-                    ext.OVR_multiview = 0;
-                    ext.EXT_shader_framebuffer_fetch = 0;
-                    Shader shader = Shader.TranslateFromMem(restoredData, WrappedGLLang.LANG_410, ext);
-
-                    if (shader.OK == 0)
-                    {
-                        throw new InvalidDataException();
-                    }
-
-                    return shader.Text;
-                }
+                throw new InvalidDataException();
             }
+
+            return shader.Text;
         }
 
         private string ProcessGLSL(string glsl, string shaderName)
         {
             var startLines = glsl.Split("\n");
             var endLines = new List<string>(startLines.Length);
-            bool pastHeader = false;
-            bool inLayout = false;
-            bool inStruct = false;
+            var pastHeader = false;
+            var inLayout = false;
+            var inStruct = false;
             var structNames = new List<string>();
 
             foreach (var line in startLines)
