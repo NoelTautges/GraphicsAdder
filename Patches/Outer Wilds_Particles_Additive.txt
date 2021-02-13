@@ -1,0 +1,10 @@
+u_xlat10 = vs_TEXCOORD2.z / _ProjectionParams.y;
+u_xlat10 = (vs_TEXCOORD2.w - vs_TEXCOORD2.z - _ProjectionParams.y) / _ProjectionParams.y; float u_xlat11 = vs_TEXCOORD2.z / _ProjectionParams.y;
+u_xlat10 = (-u_xlat10) + 1.0;
+u_xlat10 = (-u_xlat10) + 1.0; u_xlat11 = (-u_xlat11) + 1.0;
+u_xlat10 = u_xlat10 * _ProjectionParams.z;
+u_xlat10 = u_xlat10 * _ProjectionParams.z; u_xlat11 = u_xlat11 * _ProjectionParams.z;
+u_xlat10 = max(u_xlat10, 0.0);
+u_xlat10 = max(u_xlat10, 0.0); u_xlat11 = max(u_xlat11, 0.0);
+u_xlat15 = u_xlat10 + _ProjectionParams.y;
+u_xlat15 = u_xlat11 + _ProjectionParams.y;
