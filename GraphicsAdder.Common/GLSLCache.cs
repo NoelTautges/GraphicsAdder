@@ -110,14 +110,7 @@ namespace GraphicsAdder.Common
                 }
                 else
                 {
-                    if (line.IndexOf("layout(location = ") != -1 && false)
-                    {
-                        endLines.Add(line.Split(") ")[1]);
-                    }
-                    else
-                    {
-                        endLines.Add(line);
-                    }
+                    endLines.Add(line);
                 }
 
                 if (line == "#extension GL_ARB_explicit_attrib_location : require")
