@@ -3,6 +3,7 @@ using HLSLccWrapper;
 using SmartFormat;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -111,7 +112,7 @@ namespace GraphicsAdder.Common
                 {
                     inInputs = true;
                 }
-                else if (inInputs && line.Contains(" out "))
+                else if (inInputs && !line.Contains(" in "))
                 {
                     inInputs = false;
                 }
@@ -143,6 +144,12 @@ namespace GraphicsAdder.Common
                 else if (inInputs)
                 {
                     endLines.Add(Regex.Replace(line, @"location = \d+", $"location = {inputNum - 1}"));
+                }
+                else if (line.Contains(" / _ProjectionParams.y;"))
+                {
+                    var statement = line.Split(" = ")[1];
+                    var identifier = statement.Split(".")[0];
+                    endLines.Add(line.Replace(statement, $"({identifier}.w - {identifier}.z) / _ProjectionParams.y / 2.0;"));
                 }
                 else
                 {

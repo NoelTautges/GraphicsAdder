@@ -1,2 +1,0 @@
-u_xlat5 = vs_TEXCOORD1.z / _ProjectionParams.y;
-u_xlat5 = (vs_TEXCOORD1.w - vs_TEXCOORD1.z) / _ProjectionParams.y / 2.0;
