@@ -221,7 +221,7 @@ namespace GraphicsAdder.Services
                 progress.CurrentFile = fileIndex;
                 progressCallback.Report(progress);
 
-                if (file.Name.IndexOf("level") != -1)
+                if (file.Name.Contains("level"))
                 {
                     continue;
                 }

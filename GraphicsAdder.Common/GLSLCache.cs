@@ -79,12 +79,14 @@ namespace GraphicsAdder.Common
                 {
                     pastHeader = true;
                 }
-                else if (pastHeader && line.StartsWith('#') || line.IndexOf("unused") != -1)
+                else if ((pastHeader && line.StartsWith('#')) ||
+                    line.Contains("unused") ||
+                    line.Contains("//"))
                 {
                     continue;
                 }
 
-                if (line.IndexOf("layout(std140)") != -1 && line.IndexOf("UnityInstancing") == -1)
+                if (line.Contains("layout(std140)") && !line.Contains("UnityInstancing"))
                 {
                     inLayout = true;
                     continue;
@@ -95,7 +97,7 @@ namespace GraphicsAdder.Common
                     continue;
                 }
 
-                if (line.IndexOf("struct") != -1)
+                if (line.Contains("struct"))
                 {
                     inStruct = true;
                     structNames.Add(line.Split(" ")[1].Replace("_Type", ""));
@@ -105,11 +107,11 @@ namespace GraphicsAdder.Common
                     inStruct = false;
                 }
 
-                if (line.IndexOf("layout(location = ") != -1 && line.IndexOf(" in ") != -1)
+                if (line.Contains("layout(location = ") && line.Contains(" in "))
                 {
                     inInputs = true;
                 }
-                else if (inInputs && line.IndexOf(" out ") != 1)
+                else if (inInputs && line.Contains(" out "))
                 {
                     inInputs = false;
                 }
@@ -134,7 +136,7 @@ namespace GraphicsAdder.Common
                 {
                     endLines.Add(string.Join("", "uniform".Concat(line)));
                 }
-                else if (inStruct && line.IndexOf(".") != -1)
+                else if (inStruct && line.Contains("."))
                 {
                     endLines.Add(line.Replace(structNames.Last() + ".", ""));
                 }
