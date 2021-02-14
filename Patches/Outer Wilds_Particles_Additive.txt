@@ -1,5 +1,5 @@
 u_xlat10 = vs_TEXCOORD2.z / _ProjectionParams.y;
-u_xlat10 = (vs_TEXCOORD2.w - vs_TEXCOORD2.z) / 2.0 / _ProjectionParams.y; float u_xlat11 = vs_TEXCOORD2.z / _ProjectionParams.y;
+u_xlat10 = (vs_TEXCOORD2.w - vs_TEXCOORD2.z) / _ProjectionParams.y / 2.0; float u_xlat11 = vs_TEXCOORD2.z / _ProjectionParams.y;
 u_xlat10 = (-u_xlat10) + 1.0;
 u_xlat10 = (-u_xlat10) + 1.0; u_xlat11 = (-u_xlat11) + 1.0;
 u_xlat10 = u_xlat10 * _ProjectionParams.z;
