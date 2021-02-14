@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using uTinyRipper.Classes.Shaders;
 using UnityVersion = uTinyRipper.Version;
 
@@ -67,6 +68,10 @@ namespace GraphicsAdder.Common
             var inLayout = false;
             var inStruct = false;
             var structNames = new List<string>();
+            var inInputs = false;
+            var inputNum = 0;
+            var inputClass = "";
+            var inputClassNum = 0;
 
             foreach (var line in startLines)
             {
@@ -100,6 +105,31 @@ namespace GraphicsAdder.Common
                     inStruct = false;
                 }
 
+                if (line.IndexOf("layout(location = ") != -1 && line.IndexOf(" in ") != -1)
+                {
+                    inInputs = true;
+                }
+                else if (inInputs && line.IndexOf(" out ") != 1)
+                {
+                    inInputs = false;
+                }
+                if (inInputs)
+                {
+                    var identifier = line.Split(" ").Last().Replace(";", "");
+                    var currentInputClass = Regex.Replace(identifier, @"\d", "");
+                    int.TryParse(identifier.Replace(currentInputClass, ""), out var currentInputClassNum);
+                    var expectedClassNum = 0;
+                    
+                    if (currentInputClass == inputClass)
+                    {
+                        expectedClassNum = inputClassNum + 1;
+                    }
+
+                    inputNum += 1 + currentInputClassNum - expectedClassNum;
+                    inputClass = currentInputClass;
+                    inputClassNum = currentInputClassNum;
+                }
+
                 if (inLayout)
                 {
                     endLines.Add(string.Join("", "uniform".Concat(line)));
@@ -107,6 +137,10 @@ namespace GraphicsAdder.Common
                 else if (inStruct && line.IndexOf(".") != -1)
                 {
                     endLines.Add(line.Replace(structNames.Last() + ".", ""));
+                }
+                else if (inInputs)
+                {
+                    endLines.Add(Regex.Replace(line, @"location = \d+", $"location = {inputNum - 1}"));
                 }
                 else
                 {
