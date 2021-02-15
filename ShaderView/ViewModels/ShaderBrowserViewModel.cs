@@ -38,7 +38,7 @@ namespace ShaderView.ViewModels
 
             var (version, contents) = shaderLoader.LoadShaders(folder);
             shaderCache = new GLSLCache(version);
-            ContentsList = new(contents);
+            ContentsList.AddRange(contents);
         }
 
         public void ContentsList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -92,8 +92,9 @@ namespace ShaderView.ViewModels
         {
             window.Title = "ShaderView";
             FolderOpened = false;
+            ContentsList.Clear();
             ProgramSelected = false;
-            SelectedProgram = new SubProgramListing();
+            SelectedProgram = new();
             ProgramText = "";
             ProgramHasDXBC = false;
             ProgramHasGLSL = false;
