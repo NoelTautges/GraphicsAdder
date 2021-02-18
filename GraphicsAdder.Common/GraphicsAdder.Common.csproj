@@ -13,14 +13,14 @@
     <When Condition="'$(Configuration)'=='Debug'">
       <ItemGroup>
         <Reference Include="..\Libraries\Debug\DXShaderRestorer.dll" />
-        <Reference Include="..\Libraries\Debug\HLSLccWrapper_x64.dll" />
+        <Reference Include="..\Libraries\Debug\HLSLccWrapper.dll" />
         <Reference Include="..\Libraries\Debug\uTinyRipperCore.dll" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
         <Reference Include="..\Libraries\Release\DXShaderRestorer.dll" />
-        <Reference Include="..\Libraries\Release\HLSLccWrapper_x64.dll" />
+        <Reference Include="..\Libraries\Release\HLSLccWrapper.dll" />
         <Reference Include="..\Libraries\Release\uTinyRipperCore.dll" />
       </ItemGroup>
     </Otherwise>
