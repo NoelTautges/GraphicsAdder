@@ -68,10 +68,6 @@ namespace GraphicsAdder.Common
             var inLayout = false;
             var inStruct = false;
             var structNames = new List<string>();
-            var inInputs = false;
-            var inputNum = 0;
-            var inputClass = "";
-            var inputClassNum = 0;
 
             foreach (var line in startLines)
             {
@@ -107,31 +103,6 @@ namespace GraphicsAdder.Common
                     inStruct = false;
                 }
 
-                if (line.Contains("layout(location = ") && line.Contains(" in "))
-                {
-                    inInputs = true;
-                }
-                else if (inInputs && !line.Contains(" in "))
-                {
-                    inInputs = false;
-                }
-                if (inInputs)
-                {
-                    var identifier = line.Split(" ").Last().Replace(";", "");
-                    var currentInputClass = Regex.Replace(identifier, @"\d", "");
-                    int.TryParse(identifier.Replace(currentInputClass, ""), out var currentInputClassNum);
-                    var expectedClassNum = 0;
-                    
-                    if (currentInputClass == inputClass)
-                    {
-                        expectedClassNum = inputClassNum + 1;
-                    }
-
-                    inputNum += 1 + currentInputClassNum - expectedClassNum;
-                    inputClass = currentInputClass;
-                    inputClassNum = currentInputClassNum;
-                }
-
                 if (inLayout)
                 {
                     endLines.Add(string.Join("", "uniform".Concat(line)));
@@ -139,10 +110,6 @@ namespace GraphicsAdder.Common
                 else if (inStruct && line.Contains("."))
                 {
                     endLines.Add(line.Replace(structNames.Last() + ".", ""));
-                }
-                else if (inInputs)
-                {
-                    endLines.Add(Regex.Replace(line, @"location = \d+", $"location = {inputNum - 1}"));
                 }
                 else if (line.Contains(" / _ProjectionParams.y;"))
                 {
