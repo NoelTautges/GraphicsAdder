@@ -104,7 +104,6 @@ namespace GraphicsAdder.Services
                             var subPrograms = pass.ProgVertex.SubPrograms.Length;
                             for (int i = 0; i < subPrograms; i++)
                             {
-
                                 var vertexSubProgram = pass.ProgVertex.SubPrograms[i];
                                 ref var vertex = ref shader.Blobs[direct3DIndex].SubPrograms[vertexSubProgram.BlobIndex];
                                 var mostKeywords = -1;
