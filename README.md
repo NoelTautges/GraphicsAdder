@@ -30,7 +30,7 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 
 ## How do I build it?
 
-Open `GraphicsAdder.sln` in Visual Studio and hit build. Only x64 is supported at the moment.
+Open `GraphicsAdder.sln` in Visual Studio and build the `GraphicsAdder` project. Only x64 is supported.
 
 Non-NuGet dependencies are included in `Libraries`.
 
@@ -38,7 +38,7 @@ Non-NuGet dependencies are included in `Libraries`.
 
 1.) [AssetTools.NET](https://github.com/nesrak1/AssetsTools.NET) (commit >= `3a84f92`)
 
-2.) [HLSLccWrapper](https://github.com/spacehamster/HLSLccWrapper)
+2.) [HLSLccWrapper](https://github.com/NoelTautges/HLSLccWrapper) (my fork without architecture suffixes if you don't feel like changing it yourself)
 
 3.) [uTinyRipper and its component DXShaderRestorer](https://github.com/NoelTautges/UtinyRipper) (my fork with write support for shader blobs)
 
@@ -50,7 +50,7 @@ Shoot me a DM over at [my Twitter](https://twitter.com/NoelTautges) or [my Reddi
 
 1.) Epic Games Store support
 
-2.) Automatic backup, and restore for game files
+2.) Automatic backup and restore for game files
 
 3.) Generalization to all DirectX-exclusive Unity games
 
