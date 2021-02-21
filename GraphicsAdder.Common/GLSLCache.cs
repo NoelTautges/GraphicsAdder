@@ -15,7 +15,7 @@ namespace GraphicsAdder.Common
     {
         private readonly Dictionary<string, object> Constants = new()
         {
-            { "SmallFloat", 0.0001 }
+            { "SmallFloat", "0.00000000001" }
         };
 
         private UnityVersion version;
