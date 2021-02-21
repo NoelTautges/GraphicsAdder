@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GraphicsAdder": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
