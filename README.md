@@ -18,15 +18,17 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 
 3.) Back up your `OuterWilds_Data` folder (open by right clicking on Outer Wilds in Steam > Local Files > Browse) in case something goes wrong
 
-4.) Extract the zip file, run `GraphicsAdder.exe`, click Load Steam and Convert, and wait for it to finish
+4.) Extract the zip file, run `GraphicsAdder.exe`, and click More Info > Run Anyway if on Windows and SmartScreen shows up
 
-5.) Drag the files from `OuterWilds_Data_replacement` to `OuterWilds_Data` and hit replace
+5.) In GraphicsAdder, click Load Steam and Convert and wait for it to finish
 
-6.) Right click on Outer Wilds in Steam > Properties > Add `-force-glcore` to Launch Options
+6.) Drag the files from `OuterWilds_Data_replacement` to `OuterWilds_Data` and hit replace
 
-7.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, most of the in-game GUI, and far too dithery geysers!
+7.) Right click on Outer Wilds in Steam > Properties > Add `-force-glcore` to Launch Options
 
-8.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
+8.) Launch Outer Wilds from Steam as usual and see the beauty (?) of a world without proper lighting effects, most of the in-game GUI, and far too dithery geysers!
+
+9.) (optional) Remove the Launch Options in Properties if you want to go back to the original game
 
 ## How do I build it?
 
