@@ -82,6 +82,15 @@ namespace GraphicsAdder.Common
                     continue;
                 }
 
+                if (line.Contains(" in "))
+                {
+                    var identifier = line.Split(" ").Last().Replace(";", "");
+                    if (glsl.IndexOf(identifier, glsl.IndexOf(identifier) + 1) == -1)
+                    {
+                        continue;
+                    }
+                }
+
                 if (line.Contains("layout(std140)") && !line.Contains("UnityInstancing"))
                 {
                     inLayout = true;
