@@ -14,7 +14,7 @@ A program that converts the DirectX shaders of [Outer Wilds](https://www.mobiusd
 
 1.) Make sure you're on Windows and have the Steam version of Outer Wilds installed
 
-2.) Download the latest release version of GraphicsAdder from the releases tab to the right
+2.) Download the latest version of GraphicsAdder from the releases tab to the right
 
 3.) Back up your `OuterWilds_Data` folder (open by right clicking on Outer Wilds in Steam > Local Files > Browse) in case something goes wrong
 
