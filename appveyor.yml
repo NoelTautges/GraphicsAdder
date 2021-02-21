@@ -14,7 +14,7 @@ after_build:
  - del Bins\%CONFIGURATION%\*.runtimeconfig.dev.json
 artifacts:
  - path: Bins\$(configuration)
-   name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME)-$(CONFIGURATION)
+   name: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME)
 deploy:
   - provider: GitHub
     tag: $(APPVEYOR_REPO_TAG_NAME)
@@ -22,5 +22,5 @@ deploy:
     description: ''
     auth_token:
       secure: zS77Q6KGqj/AHLA80Kfyv95pXNEVYDV9mXNj0XyHoraqX5mu225SGhpFwS9oQxIB
-    artifact: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME)-$(CONFIGURATION)
+    artifact: $(APPVEYOR_PROJECT_NAME)-$(APPVEYOR_REPO_TAG_NAME)
     force_update: true
