@@ -1,2 +1,0 @@
-u_xlat4 = texture(_LightTextureB0, vec2(u_xlat33));
-u_xlat4 = vec4(texture(_LightTextureB0, vec2(u_xlat33)).w);
