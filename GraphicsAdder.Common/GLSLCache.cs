@@ -177,12 +177,18 @@ namespace GraphicsAdder.Common
             return map[key];
         }
 
-        public void ProcessSubPrograms(SerializedProgram serializedProgram, ShaderSubProgramBlob blob, string shaderName)
+        private void ProcessSubProgramList(SerializedProgram program, ShaderSubProgramBlob blob, string shaderName)
         {
-            Parallel.ForEach(serializedProgram.SubPrograms, subProgram =>
+            Parallel.ForEach(program.SubPrograms, subProgram =>
             {
                 GetGLSL(blob.SubPrograms[subProgram.BlobIndex], shaderName, subProgram.BlobIndex);
             });
+        }
+
+        public void ProcessSubPrograms(SerializedPass pass, ShaderSubProgramBlob blob, string shaderName)
+        {
+            ProcessSubProgramList(pass.ProgVertex, blob, shaderName);
+            ProcessSubProgramList(pass.ProgFragment, blob, shaderName);
         }
     }
 }

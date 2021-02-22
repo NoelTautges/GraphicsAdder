@@ -101,8 +101,7 @@ namespace GraphicsAdder.Services
                     {
                         foreach (var (pass, passIndex) in subShader.Passes.WithIndex())
                         {
-                            cache.ProcessSubPrograms(pass.ProgVertex, blob, shaderName);
-                            cache.ProcessSubPrograms(pass.ProgFragment, blob, shaderName);
+                            cache.ProcessSubPrograms(pass, blob, shaderName);
 
                             var vertexSubPrograms = pass.ProgVertex.SubPrograms;
                             var fragmentSubPrograms = pass.ProgFragment.SubPrograms;
