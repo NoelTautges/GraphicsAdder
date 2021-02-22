@@ -2,9 +2,11 @@
 using HLSLccWrapper;
 using SmartFormat;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using uTinyRipper.Classes.Shaders;
 using UnityVersion = uTinyRipper.Version;
 
@@ -18,9 +20,9 @@ namespace GraphicsAdder.Common
         };
 
         private UnityVersion version;
-        private Dictionary<string, string> unprocessedMap = new();
-        private Dictionary<string, string> processedMap = new();
-        private Dictionary<string, List<string>> replacements = new();
+        private ConcurrentDictionary<string, string> unprocessedMap = new();
+        private ConcurrentDictionary<string, string> processedMap = new();
+        private ConcurrentDictionary<string, List<string>> replacements = new();
 
         public GLSLCache(UnityVersion version)
         {
@@ -29,7 +31,7 @@ namespace GraphicsAdder.Common
             foreach (var path in Directory.EnumerateFiles("Patches"))
             {
                 var name = Path.GetFileName(path).Replace("_", "/").Replace(".txt", "");
-                replacements.Add(name, new());
+                replacements[name] = new();
 
                 foreach (var line in File.ReadLines(path))
                 {
@@ -173,6 +175,14 @@ namespace GraphicsAdder.Common
             }
 
             return map[key];
+        }
+
+        public void ProcessSubPrograms(SerializedProgram serializedProgram, ShaderSubProgramBlob blob, string shaderName)
+        {
+            Parallel.ForEach(serializedProgram.SubPrograms, subProgram =>
+            {
+                GetGLSL(blob.SubPrograms[subProgram.BlobIndex], shaderName, subProgram.BlobIndex);
+            });
         }
     }
 }

@@ -7,12 +7,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using uTinyRipper;
 using uTinyRipper.Classes;
 using uTinyRipper.Classes.Shaders;
-using Object = uTinyRipper.Classes.Object;
 
 namespace GraphicsAdder.Services
 {
@@ -20,7 +18,7 @@ namespace GraphicsAdder.Services
     {
         private const int ShaderPlatform = (int)ShaderGpuProgramType55.GLCore41;
 
-        AssetTypeValueField[] GetArray<T>(AssetTypeValueField template, T[] array)
+        private AssetTypeValueField[] GetArray<T>(AssetTypeValueField template, T[] array)
         {
             return array.Select(value =>
             {
@@ -30,22 +28,22 @@ namespace GraphicsAdder.Services
             }).ToArray();
         }
 
-        void ConcatArray<T>(AssetTypeValueField template, T[] array)
+        private void ConcatArray<T>(AssetTypeValueField template, T[] array)
         {
             template = template.Get("Array");
             template.SetChildrenList(template.children.Concat(GetArray(template, array)).ToArray());
         }
 
-        void SetArray<T>(AssetTypeValueField template, T[] array)
+        private void SetArray<T>(AssetTypeValueField template, T[] array)
         {
             template = template.Get("Array");
             template.SetChildrenList(GetArray(template, array));
         }
 
-        void AddReplacer(List<AssetsReplacer> replacers, AssetFileInfoEx assetInfo, AssetTypeValueField baseField) =>
+        private void AddReplacer(List<AssetsReplacer> replacers, AssetFileInfoEx assetInfo, AssetTypeValueField baseField) =>
             replacers.Add(new AssetsReplacerFromMemory(0, assetInfo.index, (int)assetInfo.curFileType, 0xFFFF, baseField.WriteToByteArray()));
 
-        void ConvertFile(AssetsManager am, SerializedFile file, string destPath)
+        public void ConvertFile(AssetsManager am, SerializedFile file, string destPath)
         {
             var inst = am.LoadAssetsFile(file.FilePath, false);
             am.LoadClassDatabaseFromPackage(inst.file.typeTree.unityVersion);
@@ -70,6 +68,7 @@ namespace GraphicsAdder.Services
                 }
 
                 var shader = (Shader)asset;
+                var shaderName = shader.ParsedForm.Name;
                 var platforms = baseField.Get("platforms").Get("Array");
                 var direct3DIndex = -1;
                 foreach (var (platform, index) in platforms.GetChildrenList().WithIndex())
@@ -89,6 +88,7 @@ namespace GraphicsAdder.Services
                 }
 
                 platforms.SetChildrenList(platforms.GetChildrenList().Concat(GetArray(platforms, new int[] { 15 })).ToArray());
+                ref var blob = ref shader.Blobs[direct3DIndex];
 
                 var cache = new GLSLCache(file.Version);
                 var subShaders = shader.ParsedForm.SubShaders.Length;
@@ -101,16 +101,21 @@ namespace GraphicsAdder.Services
                     {
                         foreach (var (pass, passIndex) in subShader.Passes.WithIndex())
                         {
-                            var subPrograms = pass.ProgVertex.SubPrograms.Length;
-                            for (int i = 0; i < subPrograms; i++)
+                            cache.ProcessSubPrograms(pass.ProgVertex, blob, shaderName);
+                            cache.ProcessSubPrograms(pass.ProgFragment, blob, shaderName);
+
+                            var vertexSubPrograms = pass.ProgVertex.SubPrograms;
+                            var fragmentSubPrograms = pass.ProgFragment.SubPrograms;
+
+                            for (int i = 0; i < vertexSubPrograms.Length; i++)
                             {
-                                var vertexSubProgram = pass.ProgVertex.SubPrograms[i];
-                                ref var vertex = ref shader.Blobs[direct3DIndex].SubPrograms[vertexSubProgram.BlobIndex];
+                                var vertexSubProgram = vertexSubPrograms[i];
+                                ref var vertex = ref blob.SubPrograms[vertexSubProgram.BlobIndex];
                                 var mostKeywords = -1;
-                                var fragmentSubProgram = pass.ProgFragment.SubPrograms[0];
+                                var fragmentSubProgram = fragmentSubPrograms[0];
                                 var bestFragmentIndex = -1;
 
-                                foreach (var (possibleFragment, fragmentIndex) in pass.ProgFragment.SubPrograms.WithIndex())
+                                foreach (var (possibleFragment, fragmentIndex) in fragmentSubPrograms.WithIndex())
                                 {
                                     if (possibleFragment.GlobalKeywordIndices.Any(keyword => !vertexSubProgram.GlobalKeywordIndices.Contains(keyword)) ||
                                         (SerializedSubProgram.HasLocalKeywordIndices(file.Version) && possibleFragment.LocalKeywordIndices.Any(keyword => !vertexSubProgram.LocalKeywordIndices.Contains(keyword))))
@@ -127,10 +132,10 @@ namespace GraphicsAdder.Services
                                     }
                                 }
 
-                                ref var fragment = ref shader.Blobs[direct3DIndex].SubPrograms[fragmentSubProgram.BlobIndex];
+                                ref var fragment = ref blob.SubPrograms[fragmentSubProgram.BlobIndex];
 
-                                var vertexGLSL = cache.GetGLSL(vertex, shader.ParsedForm.Name, vertexSubProgram.BlobIndex);
-                                var fragmentGLSL = cache.GetGLSL(fragment, shader.ParsedForm.Name, fragmentSubProgram.BlobIndex);
+                                var vertexGLSL = cache.GetGLSL(vertex, shaderName, vertexSubProgram.BlobIndex);
+                                var fragmentGLSL = cache.GetGLSL(fragment, shaderName, fragmentSubProgram.BlobIndex);
                                 var completedProgram = string.Join(
                                     "\n",
                                     "#ifdef VERTEX",
@@ -180,7 +185,7 @@ namespace GraphicsAdder.Services
                         }
                     }
 
-                    shader.Blobs[direct3DIndex].Write(file.Layout, memStream, out uint[] newOffsets, out uint[] newCompressedLengths, out uint[] newDecompressedLengths);
+                    blob.Write(file.Layout, memStream, out uint[] newOffsets, out uint[] newCompressedLengths, out uint[] newDecompressedLengths);
 
                     ConcatArray(baseField.Get("offsets"), newOffsets);
                     ConcatArray(baseField.Get("compressedLengths"), newCompressedLengths);
