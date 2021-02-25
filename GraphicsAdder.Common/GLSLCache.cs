@@ -72,10 +72,14 @@ namespace GraphicsAdder.Common
 
             foreach (var line in startLines)
             {
+                // Mark us as being past the header so we begin to strip defines
+                // Necessary for version ID + UnityInstancing define, if applicable
                 if (!pastHeader && line == "")
                 {
                     pastHeader = true;
                 }
+                // Skip defines (if past the header), unused variables
+                // injected by DXShaderRestorer, and comments
                 else if ((pastHeader && line.StartsWith('#')) ||
                     line.Contains("unused") ||
                     line.Contains("//"))
@@ -83,6 +87,7 @@ namespace GraphicsAdder.Common
                     continue;
                 }
 
+                // Skip unused inputs injected in DXShaderRestorer to enable input gaps
                 if (line.Contains(" in "))
                 {
                     var identifier = line.Split(" ").Last().Replace(";", "");
@@ -92,6 +97,7 @@ namespace GraphicsAdder.Common
                     }
                 }
 
+                // Strip layout blocks except for UnityInstancing, where it's necessary
                 if (line.Contains("layout(std140)") && !line.Contains("UnityInstancing"))
                 {
                     inLayout = true;
@@ -103,6 +109,7 @@ namespace GraphicsAdder.Common
                     continue;
                 }
 
+                // Mark us as being in a struct and add the corrected type name to the list of structs
                 if (line.Contains("struct"))
                 {
                     inStruct = true;
@@ -113,20 +120,24 @@ namespace GraphicsAdder.Common
                     inStruct = false;
                 }
 
+                // If we're in a layout, prefix the line with "uniform" to mark the declaration as uniform instead of the block
                 if (inLayout)
                 {
                     endLines.Add(string.Join("", "uniform".Concat(line)));
                 }
+                // If we're in a struct, remove the "<struct name>." prefix from each field
                 else if (inStruct && line.Contains("."))
                 {
                     endLines.Add(line.Replace(structNames.Last() + ".", ""));
                 }
+                // Correct manually converted Normalized Device Coordinates from the vertex shader
                 else if (line.Contains(" / _ProjectionParams.y;"))
                 {
                     var statement = line.Split(" = ")[1];
                     var identifier = statement.Split(".")[0];
                     endLines.Add(line.Replace(statement, $"({identifier}.w - {identifier}.z) / _ProjectionParams.y / 2.0;"));
                 }
+                // Compensate for incorrect _LightTextureB0 swizzle
                 else if (line.Contains("texture(_LightTextureB0,"))
                 {
                     var split = line.Split(" = ");
@@ -143,6 +154,7 @@ namespace GraphicsAdder.Common
                 }
             }
 
+            // Apply general and specific patches for this shader
             var processed = string.Join('\n', endLines);
 
             if (replacements.TryGetValue("general", out var generalReplacements))
@@ -160,6 +172,7 @@ namespace GraphicsAdder.Common
                 }
             }
 
+            // Remove extra struct dotting in main function
             foreach (var structName in structNames)
             {
                 processed = processed.Replace($".{structName}.", ".");
