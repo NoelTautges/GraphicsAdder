@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using uTinyRipper.Classes.Shaders;
 using UnityVersion = uTinyRipper.Version;
@@ -69,6 +70,7 @@ namespace GraphicsAdder.Common
             var inLayout = false;
             var inStruct = false;
             var structNames = new List<string>();
+            var samplingShadow = false;
 
             foreach (var line in startLines)
             {
@@ -120,6 +122,13 @@ namespace GraphicsAdder.Common
                     inStruct = false;
                 }
 
+                // If we're sampling a shadow using NDC coordinates coord.xy / coord.ww,
+                // switch depth from -1-1 to 0-1 to line up with shader expectations
+                if (Regex.IsMatch(line, @"^\s+u_xlat\d+\.xy = vs_TEXCOORD\d+\.xy / vs_TEXCOORD\d+\.ww;$"))
+                {
+                    samplingShadow = true;
+                }
+
                 // If we're in a layout, prefix the line with "uniform" to mark the declaration as uniform instead of the block
                 if (inLayout)
                 {
@@ -142,6 +151,11 @@ namespace GraphicsAdder.Common
                 {
                     var split = line.Split(" = ");
                     endLines.Add(split[0] + " = vec4(" + split[1].Replace(";", ".w, 0.0, 0.0, 0.0);"));
+                }
+                // Switch coordinate systems for specific depth buffers
+                else if (samplingShadow && line.Contains("texture"))
+                {
+                    endLines.Add(line.Replace("texture", "1.0 - 2.0 * texture"));
                 }
                 else
                 {
