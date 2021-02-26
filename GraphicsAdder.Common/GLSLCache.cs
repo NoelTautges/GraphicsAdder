@@ -137,8 +137,8 @@ namespace GraphicsAdder.Common
                     var identifier = statement.Split(".")[0];
                     endLines.Add(line.Replace(statement, $"({identifier}.w - {identifier}.z) / _ProjectionParams.y / 2.0;"));
                 }
-                // Compensate for incorrect _LightTexture[B]0 swizzle
-                else if (line.Contains("texture(_LightTexture"))
+                // Compensate for incorrect _LightTexture[B]0 000R swizzle
+                else if (line.Contains("texture(_LightTexture") && !glsl.Contains("samplerCube _LightTexture0"))
                 {
                     var split = line.Split(" = ");
                     endLines.Add(split[0] + " = vec4(" + split[1].Replace(";", ".w, 0.0, 0.0, 0.0);"));
