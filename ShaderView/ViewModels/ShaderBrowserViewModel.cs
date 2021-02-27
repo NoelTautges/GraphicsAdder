@@ -57,17 +57,17 @@ namespace ShaderView.ViewModels
             ProgramHasDXBC = SelectedProgram.DirectXIndex != -1;
             ProgramHasGLSL = SelectedProgram.OpenGLIndex != -1;
 
-            if (ProgramHasDXBC)
+            switch (currentLanguage)
             {
-                DisplayUnprocessedConvertedGLSL();
-            }
-            else if (ProgramHasGLSL)
-            {
-                DisplayOriginalGLSL();
-            }
-            else
-            {
-                ProgramText = "No displayable platforms available!";
+                case ShaderLanguage.GLSL_CONVERTED_UNPROCESSED:
+                    DisplayUnprocessedConvertedGLSL();
+                    break;
+                case ShaderLanguage.GLSL_CONVERTED_PROCESSED:
+                    DisplayProcessedConvertedGLSL();
+                    break;
+                case ShaderLanguage.GLSL_ORIGINAL:
+                    DisplayOriginalGLSL();
+                    break;
             }
         }
 
@@ -78,21 +78,27 @@ namespace ShaderView.ViewModels
 
         public void DisplayConvertedGLSL(bool unprocessed = false)
         {
-            var shader = ContentsList[SelectedProgram.ShaderIndex];
-            ProgramText = shaderCache.GetGLSL(GetCurrentSubProgram(SelectedProgram.DirectXIndex), shader.Name, SelectedProgram.BlobIndex, unprocessed);
+            ProgramText = shaderCache.GetGLSL(GetCurrentSubProgram(SelectedProgram.DirectXIndex), ContentsList[SelectedProgram.ShaderIndex].Name, SelectedProgram.BlobIndex, unprocessed);
+            currentLanguage = unprocessed ? ShaderLanguage.GLSL_CONVERTED_UNPROCESSED : ShaderLanguage.GLSL_CONVERTED_PROCESSED;
         }
 
         public void DisplayProcessedConvertedGLSL() => DisplayConvertedGLSL();
 
         public void DisplayUnprocessedConvertedGLSL() => DisplayConvertedGLSL(true);
 
-        public void DisplayOriginalGLSL() => ProgramText = Encoding.UTF8.GetString(GetCurrentSubProgram(SelectedProgram.OpenGLIndex).ProgramData);
+        public void DisplayOriginalGLSL()
+        {
+            ProgramText = Encoding.UTF8.GetString(GetCurrentSubProgram(SelectedProgram.OpenGLIndex).ProgramData);
+            currentLanguage = ShaderLanguage.GLSL_ORIGINAL;
+        }
 
         public void CloseFolder(Window window)
         {
             window.Title = "ShaderView";
             FolderOpened = false;
+            shaderCache = new GLSLCache(UnityVersion.MaxVersion);
             ContentsList.Clear();
+            currentLanguage = ShaderLanguage.GLSL_CONVERTED_PROCESSED;
             ProgramSelected = false;
             SelectedProgram = new();
             ProgramText = "";
@@ -102,6 +108,7 @@ namespace ShaderView.ViewModels
 
         private ShaderLoader shaderLoader;
         private GLSLCache shaderCache;
+        private ShaderLanguage currentLanguage = ShaderLanguage.GLSL_CONVERTED_PROCESSED;
 
         private bool folderOpened = false;
         public bool FolderOpened

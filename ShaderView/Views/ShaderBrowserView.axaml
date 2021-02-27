@@ -34,9 +34,9 @@
       </ScrollViewer>
       <DockPanel Grid.Column="1" IsVisible="{Binding ProgramSelected}" Margin="10,0,0,0">
         <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10" Spacing="10" Orientation="Horizontal">
-          <Button IsEnabled="{Binding ProgramHasDXBC}" Command="{Binding DisplayUnprocessedConvertedGLSL}" Content="Unprocessed Converted GLSL"/>
-          <Button IsEnabled="{Binding ProgramHasDXBC}" Command="{Binding DisplayProcessedConvertedGLSL}" Content="Processed Converted GLSL"/>
-          <Button IsEnabled="{Binding ProgramHasGLSL}" Command="{Binding DisplayOriginalGLSL}" Content="Original GLSL"/>
+          <Button IsVisible="{Binding ProgramHasDXBC}" Command="{Binding DisplayUnprocessedConvertedGLSL}" Content="Unprocessed Converted GLSL"/>
+          <Button IsVisible="{Binding ProgramHasDXBC}" Command="{Binding DisplayProcessedConvertedGLSL}" Content="Processed Converted GLSL"/>
+          <Button IsVisible="{Binding ProgramHasGLSL}" Command="{Binding DisplayOriginalGLSL}" Content="Original GLSL"/>
         </StackPanel>
         <TextBox IsReadOnly="True" Text="{Binding ProgramText}"/>
       </DockPanel>
