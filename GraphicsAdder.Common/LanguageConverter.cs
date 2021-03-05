@@ -41,6 +41,12 @@ namespace GraphicsAdder.Common
             }
         }
 
+        private int GetIncrementedVariable(IEnumerable<string> split)
+        {
+            var withoutDigits = string.Concat(split.Last().Where(char.IsDigit));
+            return withoutDigits == "" ? 0 : int.Parse(withoutDigits) + 1;
+        }
+
         public string ConvertToLang(ShaderSubProgram program)
         {
             using var stream = new MemoryStream(program.ProgramData.Skip(6).ToArray());
@@ -86,16 +92,6 @@ namespace GraphicsAdder.Common
                     line.Contains("//"))
                 {
                     continue;
-                }
-
-                // Skip unused inputs injected in DXShaderRestorer to enable input gaps
-                if (line.Contains(" in "))
-                {
-                    var identifier = line.Split(" ").Last().Replace(";", "");
-                    if (glsl.IndexOf(identifier, glsl.IndexOf(identifier) + 1) == -1)
-                    {
-                        continue;
-                    }
                 }
 
                 // Strip layout blocks except for UnityInstancing, where it's necessary
@@ -152,6 +148,110 @@ namespace GraphicsAdder.Common
                 if (line == "#extension GL_ARB_explicit_attrib_location : require")
                 {
                     endLines.Add("#extension GL_ARB_shader_bit_encoding : enable");
+                }
+            }
+
+            if (ctx.Pass.State.Name == "SHADOWCASTER")
+            {
+                var vertex = glsl.Contains("gl_Position");
+                var marker = vertex ? " out " : " in  ";
+                var location = 0;
+                var texCoordNum = 0;
+                var texCoord = "vs_TEXCOORD0";
+                var placedTexCoord = false;
+                var variable = "u_xlat0";
+                var placedVariable = false;
+                var passedMain = false;
+
+                for (int i = 0; i < endLines.Count; i++)
+                {
+                    var line = endLines[i].Trim();
+                    var beginning = line.Length > 0 ? endLines[i].Replace(line, "") : line;
+                    var inVariables = line.Contains("u_xlat");
+                    var atMain = line == "void main()";
+                    passedMain |= atMain;
+
+                    if (!passedMain && line == "")
+                    {
+                        if (!vertex && !glsl.Contains("unity_LightShadowBias"))
+                        {
+                            endLines.Insert(i + 1, "uniform\tvec4 unity_LightShadowBias;");
+                        }
+                        if (!glsl.Contains("_LightPositionRange"))
+                        {
+                            endLines.Insert(i + 1, "uniform\tvec4 _LightPositionRange;");
+                        }
+                    }
+                    else if (line.Contains(marker) && line.Contains("vs_TEXCOORD"))
+                    {
+                        var split = line.Split(" ");
+                        location = int.Parse(split[2].Replace(")", "")) + 1;
+
+                        var currentTexCoordNum = GetIncrementedVariable(split);
+                        if (currentTexCoordNum > texCoordNum)
+                        {
+                            texCoordNum = currentTexCoordNum;
+                            texCoord = $"vs_TEXCOORD{texCoordNum}";
+                        }
+                    }
+                    else if (!placedTexCoord && (
+                            inVariables || atMain ||
+                            (!vertex && line.Contains(" out "))
+                        ))
+                    {
+                        placedTexCoord = true;
+                        endLines.Insert(i, beginning + $"layout(location = {location}){marker}vec3 {texCoord};");
+                    }
+                    else if (!passedMain && inVariables)
+                    {
+                        variable = $"u_xlat{GetIncrementedVariable(line.Split(" "))}";
+                    }
+                    else if (!vertex && !placedVariable && atMain)
+                    {
+                        placedVariable = true;
+                        endLines.Insert(i, $"float {variable};");
+                    }
+                    // Split check apart to account for GPU instancing
+                    else if (vertex && line.Contains("unity_ObjectToWorld") && line.Contains("[3] * in_POSITION0.wwww"))
+                    {
+                        endLines.Insert(i + 1, beginning + $"{texCoord}.xyz = {line.Split(" = ")[0]}.xyz + (-_LightPositionRange.xyz);");
+                    }
+                    else if (!vertex && line == "SV_Target0 = vec4(0.0, 0.0, 0.0, 0.0);")
+                    {
+                        endLines.RemoveAt(i);
+                        endLines.InsertRange(i, new List<string>
+                        {
+                            beginning + $"{variable} = dot({texCoord}.xyz, {texCoord}.xyz);",
+                            beginning + $"{variable} = sqrt({variable});",
+                            beginning + $"{variable} = {variable} + unity_LightShadowBias.x;",
+                            beginning + $"SV_Target0 = vec4({variable}) * _LightPositionRange.wwww;"
+                        }); ;
+                    }
+                }
+            }
+
+            // Remove unused inputs injected in DXShaderRestorer to enable input gaps
+            // Only do this after shadowcaster fix because it needs to get the index
+            // after the last regular input in the fragment shader
+            var inInputs = false;
+            var conjoined = string.Join('\n', endLines);
+            for (int i = 0; i < endLines.Count; i++)
+            {
+                var line = endLines[i];
+                if (line.Contains(" in "))
+                {
+                    inInputs = true;
+                    var identifier = line.Split(" ").Last().Replace(";", "");
+                    if (conjoined.IndexOf(identifier, conjoined.IndexOf(identifier) + 1) == -1)
+                    {
+                        endLines.RemoveAt(i);
+                        i--;
+                    }
+
+                }
+                else if (inInputs)
+                {
+                    break;
                 }
             }
 
