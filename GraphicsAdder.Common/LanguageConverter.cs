@@ -13,15 +13,18 @@ namespace GraphicsAdder.Common
 {
     public class LanguageConverter
     {
-        private readonly Dictionary<string, object> Constants = new()
-        {
-            { "SmallFloat", "1e-10" }
-        };
-
         private ConcurrentDictionary<string, List<string>> replacements = new();
 
         public LanguageConverter()
         {
+            var constants = new Dictionary<string, string>();
+
+            foreach (var line in File.ReadLines("Patches/constants.txt"))
+            {
+                var split = line.Trim().Split(" = ");
+                constants[split[0]] = split[1];
+            }
+
             foreach (var path in Directory.EnumerateFiles("Patches"))
             {
                 var name = Path.GetFileName(path).Replace("_", "/").Replace(".txt", "");
@@ -29,7 +32,7 @@ namespace GraphicsAdder.Common
 
                 foreach (var line in File.ReadLines(path))
                 {
-                    replacements[name].Add(Smart.Format(line.Replace("\n", ""), Constants));
+                    replacements[name].Add(Smart.Format(line.Replace("\n", ""), constants));
                 }
             }
         }
