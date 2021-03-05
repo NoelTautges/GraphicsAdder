@@ -167,6 +167,7 @@ namespace GraphicsAdder.Common
                 {
                     var line = endLines[i].Trim();
                     var beginning = line.Length > 0 ? endLines[i].Replace(line, "") : line;
+                    var split = line.Split(" ");
                     var inVariables = line.Contains("u_xlat");
                     var atMain = line == "void main()";
                     passedMain |= atMain;
@@ -182,16 +183,18 @@ namespace GraphicsAdder.Common
                             endLines.Insert(i + 1, "uniform\tvec4 _LightPositionRange;");
                         }
                     }
-                    else if (line.Contains(marker) && line.Contains("vs_TEXCOORD"))
+                    else if (line.Contains(marker))
                     {
-                        var split = line.Split(" ");
                         location = int.Parse(split[2].Replace(")", "")) + 1;
 
-                        var currentTexCoordNum = GetIncrementedVariable(split);
-                        if (currentTexCoordNum > texCoordNum)
+                        if (line.Contains("vs_TEXCOORD"))
                         {
-                            texCoordNum = currentTexCoordNum;
-                            texCoord = $"vs_TEXCOORD{texCoordNum}";
+                            var currentTexCoordNum = GetIncrementedVariable(split);
+                            if (currentTexCoordNum > texCoordNum)
+                            {
+                                texCoordNum = currentTexCoordNum;
+                                texCoord = $"vs_TEXCOORD{texCoordNum}";
+                            }
                         }
                     }
                     else if (!placedTexCoord && (
@@ -204,7 +207,7 @@ namespace GraphicsAdder.Common
                     }
                     else if (!passedMain && inVariables)
                     {
-                        variable = $"u_xlat{GetIncrementedVariable(line.Split(" "))}";
+                        variable = $"u_xlat{GetIncrementedVariable(split)}";
                     }
                     else if (!vertex && !placedVariable && atMain)
                     {
