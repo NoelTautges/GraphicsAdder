@@ -41,7 +41,7 @@ namespace ShaderView.Services
             {
                 var shaderComponent = new ComponentListing()
                 {
-                    Name = $"{shader.ParsedForm.Name} ({shader.PathID})"
+                    Name = $"{shader.ParsedForm.Name} (path {shader.PathID})"
                 };
                 components.Add(shaderComponent);
 
@@ -53,7 +53,7 @@ namespace ShaderView.Services
                 {
                     var subShaderComponent = new ComponentListing()
                     {
-                        Name = $"Subshader {subShaderIndex}"
+                        Name = $"Subshader {subShaderIndex} (LOD {subShader.LOD})"
                     };
                     shaderComponent.Children.Add(subShaderComponent);
 
@@ -61,7 +61,7 @@ namespace ShaderView.Services
                     {
                         var passComponent = new ComponentListing()
                         {
-                            Name = $"Pass {passIndex}"
+                            Name = "Pass " + (pass.State.Name == "" ? passIndex.ToString() : $"{pass.State.Name} ({passIndex})")
                         };
                         subShaderComponent.Children.Add(passComponent);
 
