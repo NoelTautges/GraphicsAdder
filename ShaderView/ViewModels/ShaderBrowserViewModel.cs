@@ -7,6 +7,7 @@ using ShaderView.Services;
 using System.Text;
 using UnityVersion = uTinyRipper.Version;
 using uTinyRipper.Classes.Shaders;
+using System;
 
 namespace ShaderView.ViewModels
 {
@@ -48,7 +49,6 @@ namespace ShaderView.ViewModels
             if (selected is not SubProgramListing)
             {
                 ProgramSelected = false;
-                SelectedProgram = new SubProgramListing();
                 return;
             }
 
@@ -73,12 +73,22 @@ namespace ShaderView.ViewModels
 
         private ShaderSubProgram GetCurrentSubProgram(int platformIndex)
         {
-            return SelectedProgram.Blobs[platformIndex].SubPrograms[SelectedProgram.BlobIndex];
+            if (SelectedProgram == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return SelectedProgram.Blobs[platformIndex].SubPrograms[SelectedProgram.Context.BlobIndex];
         }
 
         public void DisplayConvertedGLSL(bool unprocessed = false)
         {
-            ProgramText = shaderCache.GetGLSL(GetCurrentSubProgram(SelectedProgram.DirectXIndex), ContentsList[SelectedProgram.ShaderIndex].Name, SelectedProgram.BlobIndex, unprocessed);
+            if (SelectedProgram == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            ProgramText = shaderCache.GetGLSL(SelectedProgram.Context.GetContext(GetCurrentSubProgram(SelectedProgram.DirectXIndex)), unprocessed);
             currentLanguage = unprocessed ? ShaderLanguage.GLSL_CONVERTED_UNPROCESSED : ShaderLanguage.GLSL_CONVERTED_PROCESSED;
         }
 
@@ -100,7 +110,7 @@ namespace ShaderView.ViewModels
             ContentsList.Clear();
             currentLanguage = ShaderLanguage.GLSL_CONVERTED_PROCESSED;
             ProgramSelected = false;
-            SelectedProgram = new();
+            SelectedProgram = null;
             ProgramText = "";
             ProgramHasDXBC = false;
             ProgramHasGLSL = false;
@@ -128,8 +138,8 @@ namespace ShaderView.ViewModels
             get => programSelected;
             set => this.RaiseAndSetIfChanged(ref programSelected, value);
         }
-        private SubProgramListing selectedProgram = new SubProgramListing();
-        public SubProgramListing SelectedProgram
+        private SubProgramListing? selectedProgram;
+        public SubProgramListing? SelectedProgram
         {
             get => selectedProgram;
             set => this.RaiseAndSetIfChanged(ref selectedProgram, value);

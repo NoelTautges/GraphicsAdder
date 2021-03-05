@@ -7,46 +7,43 @@ namespace GraphicsAdder.Common
 {
     public class LanguageCache
     {
-
-        private UnityVersion version;
         private ConcurrentDictionary<string, string> unprocessedMap;
         private ConcurrentDictionary<string, string> processedMap;
         private LanguageConverter converter;
 
         public LanguageCache(UnityVersion version)
         {
-            this.version = version;
             unprocessedMap = new();
             processedMap = new();
-            converter = new();
+            converter = new(version);
         }
 
-        public string GetGLSL(ShaderSubProgram program, string shaderName, uint blobIndex, bool unprocessed = false)
+        public string GetGLSL(ShaderContext ctx, bool unprocessed = false)
         {
-            var key = $"{shaderName}-{blobIndex}";
+            var key = $"{ctx.Shader.ParsedForm.Name}-{ctx.BlobIndex}";
             var map = unprocessed ? unprocessedMap : processedMap;
 
             if (!map.ContainsKey(key))
             {
-                unprocessedMap[key] = converter.ConvertToGLSL(program, version);
-                processedMap[key] = converter.ProcessGLSL(unprocessedMap[key], shaderName.Split(" (")[0]);
+                unprocessedMap[key] = converter.ConvertToLang(ctx.Program.GetValueOrDefault());
+                processedMap[key] = converter.ProcessGLSL(unprocessedMap[key], ctx);
             }
 
             return map[key];
         }
 
-        private void ProcessSubProgramList(SerializedProgram program, ShaderSubProgramBlob blob, string shaderName)
+        private void ProcessSubProgramList(ShaderContext ctx, SerializedProgram program, ShaderSubProgramBlob blob)
         {
             Parallel.ForEach(program.SubPrograms, subProgram =>
             {
-                GetGLSL(blob.SubPrograms[subProgram.BlobIndex], shaderName, subProgram.BlobIndex);
+                GetGLSL(ctx.GetContext(blob.SubPrograms[subProgram.BlobIndex], subProgram.BlobIndex));
             });
         }
 
-        public void ProcessSubPrograms(SerializedPass pass, ShaderSubProgramBlob blob, string shaderName)
+        public void ProcessSubPrograms(ShaderContext ctx, ShaderSubProgramBlob blob)
         {
-            ProcessSubProgramList(pass.ProgVertex, blob, shaderName);
-            ProcessSubProgramList(pass.ProgFragment, blob, shaderName);
+            ProcessSubProgramList(ctx, ctx.Pass.ProgVertex, blob);
+            ProcessSubProgramList(ctx, ctx.Pass.ProgFragment, blob);
         }
     }
 }

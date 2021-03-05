@@ -89,14 +89,12 @@ namespace ShaderView.Services
                             }
                             name.Append(")");
 
-                            passComponent.Children.Add(new SubProgramListing()
+                            passComponent.Children.Add(new SubProgramListing(new ShaderContext(shader, pass, prog.BlobIndex))
                             {
                                 Name = name.ToString(),
-                                ShaderIndex = shaderIndex,
                                 Blobs = shader.Blobs,
                                 DirectXIndex = directXIndex,
                                 OpenGLIndex = openGLIndex,
-                                BlobIndex = prog.BlobIndex
                             });
                         }
                         var fragmentPrograms = pass.ProgFragment.SubPrograms;
@@ -123,14 +121,12 @@ namespace ShaderView.Services
                             }
                             name.Append(")");
 
-                            passComponent.Children.Add(new SubProgramListing()
+                            passComponent.Children.Add(new SubProgramListing(new ShaderContext(shader, pass, prog.BlobIndex))
                             {
                                 Name = name.ToString(),
-                                ShaderIndex = shaderIndex,
                                 Blobs = shader.Blobs,
                                 DirectXIndex = directXIndex,
                                 OpenGLIndex = openGLIndex,
-                                BlobIndex = prog.BlobIndex
                             });
                         }
                     }

@@ -13,10 +13,12 @@ namespace GraphicsAdder.Common
 {
     public class LanguageConverter
     {
-        private ConcurrentDictionary<string, List<string>> replacements = new();
+        private UnityVersion version;
+        private ConcurrentDictionary<string, List<string>> replacements;
 
-        public LanguageConverter()
+        public LanguageConverter(UnityVersion version)
         {
+            this.version = version;
             var constants = new Dictionary<string, string>();
 
             foreach (var line in File.ReadLines("Patches/constants.txt"))
@@ -24,6 +26,8 @@ namespace GraphicsAdder.Common
                 var split = line.Trim().Split(" = ");
                 constants[split[0]] = split[1];
             }
+
+            replacements = new();
 
             foreach (var path in Directory.EnumerateFiles("Patches"))
             {
@@ -37,7 +41,7 @@ namespace GraphicsAdder.Common
             }
         }
 
-        public string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
+        public string ConvertToLang(ShaderSubProgram program)
         {
             using var stream = new MemoryStream(program.ProgramData.Skip(6).ToArray());
             using var reader = new BinaryReader(stream);
@@ -58,7 +62,7 @@ namespace GraphicsAdder.Common
             return shader.Text;
         }
 
-        public string ProcessGLSL(string glsl, string shaderName)
+        public string ProcessGLSL(string glsl, ShaderContext ctx)
         {
             var startLines = glsl.Split("\n");
             var endLines = new List<string>(startLines.Length);
@@ -154,6 +158,7 @@ namespace GraphicsAdder.Common
             // Apply general and specific patches for this shader
             var processed = string.Join('\n', endLines);
 
+            // General patches are guaranteed to be there, but nullability dictates that we try to get it anyway
             if (replacements.TryGetValue("general", out var generalReplacements))
             {
                 for (int i = 0; i < Math.Floor(generalReplacements.Count / 2.0); i++)
@@ -161,7 +166,7 @@ namespace GraphicsAdder.Common
                     processed = processed.Replace(generalReplacements[i * 2], generalReplacements[i * 2 + 1]);
                 }
             }
-            if (replacements.TryGetValue(shaderName, out var specificReplacements))
+            if (replacements.TryGetValue(ctx.Shader.ParsedForm.Name, out var specificReplacements))
             {
                 for (int i = 0; i < Math.Floor(specificReplacements.Count / 2.0); i++)
                 {

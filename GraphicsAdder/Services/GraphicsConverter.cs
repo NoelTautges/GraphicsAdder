@@ -101,7 +101,8 @@ namespace GraphicsAdder.Services
                     {
                         foreach (var (pass, passIndex) in subShader.Passes.WithIndex())
                         {
-                            cache.ProcessSubPrograms(pass, blob, shaderName);
+                            var ctx = new ShaderContext(shader, pass);
+                            cache.ProcessSubPrograms(ctx, blob);
 
                             var vertexSubPrograms = pass.ProgVertex.SubPrograms;
                             var fragmentSubPrograms = pass.ProgFragment.SubPrograms;
@@ -133,8 +134,8 @@ namespace GraphicsAdder.Services
 
                                 ref var fragment = ref blob.SubPrograms[fragmentSubProgram.BlobIndex];
 
-                                var vertexGLSL = cache.GetGLSL(vertex, shaderName, vertexSubProgram.BlobIndex);
-                                var fragmentGLSL = cache.GetGLSL(fragment, shaderName, fragmentSubProgram.BlobIndex);
+                                var vertexGLSL = cache.GetGLSL(ctx.GetContext(vertex, vertexSubProgram.BlobIndex));
+                                var fragmentGLSL = cache.GetGLSL(ctx.GetContext(fragment, fragmentSubProgram.BlobIndex));
                                 var completedProgram = string.Join(
                                     "\n",
                                     "#ifdef VERTEX",
