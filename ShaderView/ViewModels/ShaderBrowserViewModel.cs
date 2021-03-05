@@ -16,7 +16,7 @@ namespace ShaderView.ViewModels
         public ShaderBrowserViewModel(ShaderLoader shaderLoader)
         {
             this.shaderLoader = shaderLoader;
-            shaderCache = new GLSLCache(UnityVersion.MaxVersion);
+            shaderCache = new LanguageCache(UnityVersion.MaxVersion);
         }
 
         public async void OpenFolder(Window window)
@@ -37,7 +37,7 @@ namespace ShaderView.ViewModels
             window.Title = $"ShaderView: {folder}";
 
             var (version, contents) = shaderLoader.LoadShaders(folder);
-            shaderCache = new GLSLCache(version);
+            shaderCache = new LanguageCache(version);
             ContentsList.AddRange(contents);
         }
 
@@ -96,7 +96,7 @@ namespace ShaderView.ViewModels
         {
             window.Title = "ShaderView";
             FolderOpened = false;
-            shaderCache = new GLSLCache(UnityVersion.MaxVersion);
+            shaderCache = new LanguageCache(UnityVersion.MaxVersion);
             ContentsList.Clear();
             currentLanguage = ShaderLanguage.GLSL_CONVERTED_PROCESSED;
             ProgramSelected = false;
@@ -107,7 +107,7 @@ namespace ShaderView.ViewModels
         }
 
         private ShaderLoader shaderLoader;
-        private GLSLCache shaderCache;
+        private LanguageCache shaderCache;
         private ShaderLanguage currentLanguage = ShaderLanguage.GLSL_CONVERTED_PROCESSED;
 
         private bool folderOpened = false;

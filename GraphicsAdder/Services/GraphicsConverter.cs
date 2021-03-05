@@ -90,7 +90,7 @@ namespace GraphicsAdder.Services
                 platforms.SetChildrenList(platforms.GetChildrenList().Concat(GetArray(platforms, new int[] { 15 })).ToArray());
                 ref var blob = ref shader.Blobs[direct3DIndex];
 
-                var cache = new GLSLCache(file.Version);
+                var cache = new LanguageCache(file.Version);
                 var subShaders = shader.ParsedForm.SubShaders.Length;
 
                 using (var memStream = new MemoryStream())

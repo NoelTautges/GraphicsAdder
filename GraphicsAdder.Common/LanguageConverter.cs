@@ -6,28 +6,22 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using uTinyRipper.Classes.Shaders;
 using UnityVersion = uTinyRipper.Version;
 
 namespace GraphicsAdder.Common
 {
-    public class GLSLCache
+    public class LanguageConverter
     {
         private readonly Dictionary<string, object> Constants = new()
         {
             { "SmallFloat", "1e-10" }
         };
 
-        private UnityVersion version;
-        private ConcurrentDictionary<string, string> unprocessedMap = new();
-        private ConcurrentDictionary<string, string> processedMap = new();
         private ConcurrentDictionary<string, List<string>> replacements = new();
 
-        public GLSLCache(UnityVersion version)
+        public LanguageConverter()
         {
-            this.version = version;
-
             foreach (var path in Directory.EnumerateFiles("Patches"))
             {
                 var name = Path.GetFileName(path).Replace("_", "/").Replace(".txt", "");
@@ -40,7 +34,7 @@ namespace GraphicsAdder.Common
             }
         }
 
-        private string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
+        public string ConvertToGLSL(ShaderSubProgram program, UnityVersion version)
         {
             using var stream = new MemoryStream(program.ProgramData.Skip(6).ToArray());
             using var reader = new BinaryReader(stream);
@@ -61,7 +55,7 @@ namespace GraphicsAdder.Common
             return shader.Text;
         }
 
-        private string ProcessGLSL(string glsl, string shaderName)
+        public string ProcessGLSL(string glsl, string shaderName)
         {
             var startLines = glsl.Split("\n");
             var endLines = new List<string>(startLines.Length);
@@ -179,34 +173,6 @@ namespace GraphicsAdder.Common
             }
 
             return processed;
-        }
-
-        public string GetGLSL(ShaderSubProgram program, string shaderName, uint blobIndex, bool unprocessed = false)
-        {
-            var key = $"{shaderName}-{blobIndex}";
-            var map = unprocessed ? unprocessedMap : processedMap;
-
-            if (!map.ContainsKey(key))
-            {
-                unprocessedMap[key] = ConvertToGLSL(program, version);
-                processedMap[key] = ProcessGLSL(unprocessedMap[key], shaderName.Split(" (")[0]);
-            }
-
-            return map[key];
-        }
-
-        private void ProcessSubProgramList(SerializedProgram program, ShaderSubProgramBlob blob, string shaderName)
-        {
-            Parallel.ForEach(program.SubPrograms, subProgram =>
-            {
-                GetGLSL(blob.SubPrograms[subProgram.BlobIndex], shaderName, subProgram.BlobIndex);
-            });
-        }
-
-        public void ProcessSubPrograms(SerializedPass pass, ShaderSubProgramBlob blob, string shaderName)
-        {
-            ProcessSubProgramList(pass.ProgVertex, blob, shaderName);
-            ProcessSubProgramList(pass.ProgFragment, blob, shaderName);
         }
     }
 }
