@@ -27,7 +27,7 @@
   </Choose>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(SolutionDir)\Patches&quot; &quot;$(TargetDir)\Patches&quot; /D /I /Y" />
+    <Exec Command="xcopy &quot;$(ProjectDirDir)\Patches&quot; &quot;$(TargetDir)\Patches&quot; /D /I /Y" />
   </Target>
 
   <ItemGroup>
