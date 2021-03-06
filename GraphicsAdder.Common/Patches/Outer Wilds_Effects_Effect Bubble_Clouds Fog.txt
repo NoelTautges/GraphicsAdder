@@ -1,2 +1,0 @@
-u_xlat0 = texture(_CameraDepthTexture, u_xlat0.xy);
-u_xlat0 = 1.0 - 2.0 * texture(_CameraDepthTexture, u_xlat0.xy);
