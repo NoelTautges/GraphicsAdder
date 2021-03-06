@@ -141,7 +141,7 @@ namespace GraphicsAdder.Common
                     var split = line.Split(" = ");
                     endLines.Add(split[0] + " = vec4(" + split[1].Replace(";", ".w, 0.0, 0.0, 0.0);"));
                 }
-                // Adjust depth reading for non-fading purposes
+                // Adjust depth read in UnityDeferredCalculateLightParams and fragSoftParticles
                 else if (depthAdjust &&
                     line.Contains("texture(_CameraDepthTexture") &&
                     !glsl.Contains("_GeomFadeDist") &&
