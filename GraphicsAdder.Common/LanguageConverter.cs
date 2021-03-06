@@ -76,6 +76,7 @@ namespace GraphicsAdder.Common
             var inLayout = false;
             var inStruct = false;
             var structNames = new List<string>();
+            var depthAdjust = false;
 
             foreach (var line in startLines)
             {
@@ -141,7 +142,8 @@ namespace GraphicsAdder.Common
                     endLines.Add(split[0] + " = vec4(" + split[1].Replace(";", ".w, 0.0, 0.0, 0.0);"));
                 }
                 // Adjust depth reading for non-fading purposes
-                else if (line.Contains("texture(_CameraDepthTexture") &&
+                else if (depthAdjust &&
+                    line.Contains("texture(_CameraDepthTexture") &&
                     !glsl.Contains("_GeomFadeDist") &&
                     !glsl.Contains("_CameraFadeDist"))
                 {
@@ -155,6 +157,16 @@ namespace GraphicsAdder.Common
                 if (line == "#extension GL_ARB_explicit_attrib_location : require")
                 {
                     endLines.Add("#extension GL_ARB_shader_bit_encoding : enable");
+                }
+                else if (line.Contains(" = vs_TEXCOORD") &&
+                    line.Contains(".xy / vs_TEXCOORD") &&
+                    line.Contains(".ww;"))
+                {
+                    depthAdjust = true;
+                }
+                else if (depthAdjust)
+                {
+                    depthAdjust = false;
                 }
             }
 
