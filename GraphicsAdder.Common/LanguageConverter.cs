@@ -149,6 +149,12 @@ namespace GraphicsAdder.Common
                 {
                     endLines.Add(line.Replace(" = ", " = 1.0 - 2.0 * "));
                 }
+                else if (line.Contains("layout(location = ") &&
+                    (glsl.Contains("gl_Position") ||
+                    line.Contains(" in ")))
+                {
+                    endLines.Add(line.Split(") ")[1]);
+                }
                 else
                 {
                     endLines.Add(line);
@@ -174,7 +180,6 @@ namespace GraphicsAdder.Common
             {
                 var vertex = glsl.Contains("gl_Position");
                 var marker = vertex ? " out " : " in  ";
-                var location = 0;
                 var texCoordNum = 0;
                 var texCoord = "vs_TEXCOORD0";
                 var placedTexCoord = false;
@@ -202,18 +207,13 @@ namespace GraphicsAdder.Common
                             endLines.Insert(i + 1, "uniform\tvec4 _LightPositionRange;");
                         }
                     }
-                    else if (line.Contains(marker))
+                    else if (line.Contains(marker) && line.Contains("vs_TEXCOORD"))
                     {
-                        location = int.Parse(split[2].Replace(")", "")) + 1;
-
-                        if (line.Contains("vs_TEXCOORD"))
+                        var currentTexCoordNum = GetIncrementedVariable(split);
+                        if (currentTexCoordNum > texCoordNum)
                         {
-                            var currentTexCoordNum = GetIncrementedVariable(split);
-                            if (currentTexCoordNum > texCoordNum)
-                            {
-                                texCoordNum = currentTexCoordNum;
-                                texCoord = $"vs_TEXCOORD{texCoordNum}";
-                            }
+                            texCoordNum = currentTexCoordNum;
+                            texCoord = $"vs_TEXCOORD{texCoordNum}";
                         }
                     }
                     else if (!placedTexCoord && (
@@ -222,7 +222,7 @@ namespace GraphicsAdder.Common
                         ))
                     {
                         placedTexCoord = true;
-                        endLines.Insert(i, beginning + $"layout(location = {location}){marker}vec3 {texCoord};");
+                        endLines.Insert(i, beginning + $"{marker}vec3 {texCoord};");
                     }
                     else if (!passedMain && inVariables)
                     {
@@ -233,12 +233,14 @@ namespace GraphicsAdder.Common
                         placedVariable = true;
                         endLines.Insert(i, $"float {variable};");
                     }
+                    // Pass distance vector as texture coordinate in vertex shader
                     // Split check apart to account for GPU instancing
-                    else if (vertex && line.Contains("unity_ObjectToWorld") && line.Contains("[3] * in_POSITION0.wwww"))
+                    else if (line.Contains("unity_ObjectToWorld") && line.Contains("[3] * in_POSITION0.wwww"))
                     {
                         endLines.Insert(i + 1, beginning + $"{texCoord}.xyz = {line.Split(" = ")[0]}.xyz + (-_LightPositionRange.xyz);");
                     }
-                    else if (!vertex && line == "SV_Target0 = vec4(0.0, 0.0, 0.0, 0.0);")
+                    // Replace final color set in fragment shader
+                    else if (line == "SV_Target0 = vec4(0.0, 0.0, 0.0, 0.0);")
                     {
                         endLines.RemoveAt(i);
                         endLines.InsertRange(i, new List<string>
