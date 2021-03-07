@@ -179,7 +179,7 @@ namespace GraphicsAdder.Common
             if (ctx.Pass.State.Name == "SHADOWCASTER")
             {
                 var vertex = glsl.Contains("gl_Position");
-                var marker = vertex ? " out " : " in  ";
+                var marker = vertex ? "out " : "in  ";
                 var texCoordNum = 0;
                 var texCoord = "vs_TEXCOORD0";
                 var placedTexCoord = false;
