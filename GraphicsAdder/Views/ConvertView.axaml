@@ -17,7 +17,7 @@
         <TextBox Watermark="Destination Folder" Text="{Binding Settings.DestinationPath}"/>
       </DockPanel>
       <StackPanel Orientation="Horizontal" Spacing="10">
-        <Button Command="{Binding SetEpicGamesPath}">Load Epic Games</Button>
+        <Button Command="{Binding SetEpicGamesPath}" IsEnabled="False">Load Epic Games</Button>
         <Button Command="{Binding SetSteamPath}">Load Steam</Button>
       </StackPanel>
       <CheckBox IsChecked="{Binding Settings.PlaySound}">Play Sound After Conversion</CheckBox>
