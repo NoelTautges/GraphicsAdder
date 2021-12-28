@@ -168,7 +168,7 @@ namespace GraphicsAdder.Common
                 }
             }
 
-            if (ctx.Pass.State.Name == "SHADOWCASTER")
+            if (ctx.Pass["m_State"]["m_Name"].value.AsString() == "SHADOWCASTER")
             {
                 var vertex = glsl.Contains("gl_Position");
                 var marker = vertex ? "out " : "in  ";
@@ -232,6 +232,7 @@ namespace GraphicsAdder.Common
                         endLines.Insert(i + 1, beginning + $"{texCoord}.xyz = {line.Split(" = ")[0]}.xyz + (-_LightPositionRange.xyz);");
                     }
                     // Replace final color set in fragment shader
+                    // https://github.com/TwoTailsGames/Unity-Built-in-Shaders/blob/6a63f93bc1f20ce6cd47f981c7494e8328915621/CGIncludes/UnityCG.cginc#L930
                     else if (line == "SV_Target0 = vec4(0.0, 0.0, 0.0, 0.0);")
                     {
                         endLines.RemoveAt(i);
@@ -282,7 +283,7 @@ namespace GraphicsAdder.Common
                     processed = processed.Replace(generalReplacements[i * 2], generalReplacements[i * 2 + 1]);
                 }
             }
-            if (replacements.TryGetValue(ctx.Shader.ParsedForm.Name, out var specificReplacements))
+            if (replacements.TryGetValue(ctx.ShaderName, out var specificReplacements))
             {
                 for (int i = 0; i < Math.Floor(specificReplacements.Count / 2.0); i++)
                 {

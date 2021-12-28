@@ -98,6 +98,11 @@ namespace ShaderView.ViewModels
 
         public void DisplayOriginalGLSL()
         {
+            if (SelectedProgram == null)
+            {
+                throw new InvalidOperationException();
+            }
+
             ProgramText = Encoding.UTF8.GetString(GetCurrentSubProgram(SelectedProgram.OpenGLIndex).ProgramData);
             currentLanguage = ShaderLanguage.GLSL_ORIGINAL;
         }

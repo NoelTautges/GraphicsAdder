@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bins", "Bins", "{56DCACC6-A151-4A01-8130-076035ADB0DA}"
 EndProject
@@ -21,6 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GraphicsAdder", "GraphicsAd
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderView", "ShaderView\ShaderView.csproj", "{315E7E14-285A-4B04-8551-36BE2C59F079}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShaderExtractor", "ShaderExtractor\ShaderExtractor.csproj", "{1BC6C819-CFAE-4403-A49A-B7933F9D5ADD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{02634A61-FB87-45B3-800F-736DDC36F7B8} = {02634A61-FB87-45B3-800F-736DDC36F7B8}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -39,6 +44,10 @@ Global
 		{315E7E14-285A-4B04-8551-36BE2C59F079}.Debug|x64.Build.0 = Debug|x64
 		{315E7E14-285A-4B04-8551-36BE2C59F079}.Release|x64.ActiveCfg = Release|x64
 		{315E7E14-285A-4B04-8551-36BE2C59F079}.Release|x64.Build.0 = Release|x64
+		{1BC6C819-CFAE-4403-A49A-B7933F9D5ADD}.Debug|x64.ActiveCfg = Debug|x64
+		{1BC6C819-CFAE-4403-A49A-B7933F9D5ADD}.Debug|x64.Build.0 = Debug|x64
+		{1BC6C819-CFAE-4403-A49A-B7933F9D5ADD}.Release|x64.ActiveCfg = Release|x64
+		{1BC6C819-CFAE-4403-A49A-B7933F9D5ADD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
