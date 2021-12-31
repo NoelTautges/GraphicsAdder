@@ -44,5 +44,11 @@ namespace GraphicsAdder.Common
                 GetGLSL(ctx.GetContext(blob.SubPrograms[blobIndex], blobIndex));
             });
         }
+
+        public void Clear()
+        {
+            unprocessedMap.Clear();
+            processedMap.Clear();
+        }
     }
 }

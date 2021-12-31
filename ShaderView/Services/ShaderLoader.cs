@@ -1,139 +1,119 @@
-﻿using GraphicsAdder.Common;
+﻿using AssetsTools.NET;
+using AssetsTools.NET.Extra;
+using GraphicsAdder.Common;
 using ShaderView.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using uTinyRipper;
-using UnityVersion = uTinyRipper.Version;
-using uTinyRipper.Classes;
-using uTinyRipper.Classes.Shaders;
 using System.Text;
+using uTinyRipper.Classes.Shaders;
 
 namespace ShaderView.Services
 {
-    public class ShaderLoader
+    public static class ShaderLoader
     {
-        public (UnityVersion, List<ComponentListing>) LoadShaders(string folder)
+        public static IEnumerable<SubProgramListing> GetSubProgramListings(AssetTypeValueField shader, ShaderSubProgramBlob[] blobs, AssetTypeValueField pass, AssetTypeValueField programGroup, string group, int platforms, int directXIndex, int openGLIndex)
         {
-            var structure = GameStructure.Load(new List<string> { folder });
-            var components = new List<ComponentListing>();
-            var version = UnityVersion.MaxVersion;
-            var shaders = new List<Shader>();
-
-            foreach (var file in structure.FileCollection.SerializedFiles)
+            var subPrograms = programGroup["m_SubPrograms"]["Array"].children;
+            foreach (var (prog, progIndex) in subPrograms.WithIndex().Take((int)Math.Floor((double)subPrograms.Length / platforms)))
             {
-                version = file.Version;
-
-                foreach (var asset in file.FetchAssets())
+                var name = new StringBuilder($"{group} subprogram {progIndex} (blob {prog["m_BlobIndex"].value.AsUInt()}");
+                var firstKeyword = true;
+                if (prog["m_GlobalKeywordIndices"]["Array"].childrenCount > 0 || prog["m_LocalKeywordIndices"]["Array"].childrenCount > 0)
                 {
-                    if (asset.ClassID != ClassIDType.Shader)
+                    name.Append(", keywords ");
+                }
+                foreach (var keyword in prog["m_GlobalKeywordIndices"]["Array"].children)
+                {
+                    var keywordVal = keyword.value.AsUInt();
+                    if (!firstKeyword)
                     {
-                        continue;
+                        name.Append(", ");
                     }
+                    firstKeyword = false;
+                    name.Append(pass["m_NameIndices"]["Array"].children
+                        .Where(pair => pair["second"].value.AsInt() == keywordVal)
+                        .First()["first"].value.AsString());
+                }
+                if (prog["m_LocalKeywordIndices"].children != null)
+                {
+                    foreach (var keyword in prog["m_LocalKeywordIndices"]["Array"].children)
+                    {
+                        var keywordVal = keyword.value.AsUInt();
+                        if (!firstKeyword)
+                        {
+                            name.Append(", ");
+                        }
+                        firstKeyword = false;
+                        name.Append(pass["m_NameIndices"]["Array"].children
+                            .Where(pair => pair["second"].value.AsInt() == keywordVal)
+                            .First()["first"].value.AsString());
+                    }
+                }
+                name.Append(")");
 
-                    shaders.Add((Shader)asset);
+                yield return new SubProgramListing(new ShaderContext(shader, pass, prog["m_BlobIndex"].value.AsUInt()))
+                {
+                    Name = name.ToString(),
+                    Blobs = blobs,
+                    DirectXIndex = directXIndex,
+                    OpenGLIndex = openGLIndex,
+                };
+            }
+        }
+
+        public static List<ComponentListing> LoadShaders(GraphicsConverter converter)
+        {
+            var components = new List<ComponentListing>();
+            var shaders = new List<(long, AssetTypeValueField)>();
+
+            foreach (var file in converter.AssetsFiles)
+            {
+                foreach (var shader in file.table.GetAssetsOfType((int)AssetClassID.Shader))
+                {
+                    shaders.Add((shader.index, converter.AssetsManager.GetTypeInstance(file, shader).GetBaseField()));
                 }
             }
 
-            shaders.Sort((x, y) => x.ParsedForm.Name.CompareTo(y.ParsedForm.Name));
+            shaders.Sort((x, y) => x.Item2["m_ParsedForm"]["m_Name"].value.AsString().CompareTo(y.Item2["m_ParsedForm"]["m_Name"].value.AsString()));
 
-            foreach (var (shader, shaderIndex) in shaders.WithIndex())
+            foreach (var ((pathID, shader), shaderIndex) in shaders.WithIndex())
             {
                 var shaderComponent = new ComponentListing()
                 {
-                    Name = $"{shader.ParsedForm.Name} (path {shader.PathID})"
+                    Name = $"{shader["m_ParsedForm"]["m_Name"].value.AsString()} (path {pathID})"
                 };
                 components.Add(shaderComponent);
 
-                var platforms = shader.Platforms;
-                var directXIndex = platforms.IndexOf(GPUPlatform.d3d11);
-                var openGLIndex = platforms.IndexOf(GPUPlatform.glcore);
+                var platforms = shader["platforms"]["Array"].children.Select(c => c.value.AsInt()).ToArray();
+                var directXIndex = Array.IndexOf(platforms, (int)GPUPlatform.d3d11);
+                var openGLIndex = Array.IndexOf(platforms, (int)GPUPlatform.glcore);
+                var blobs = converter.GetBlobs(shader);
 
-                foreach (var (subShader, subShaderIndex) in shader.ParsedForm.SubShaders.WithIndex())
+                foreach (var (subShader, subShaderIndex) in shader["m_ParsedForm"]["m_SubShaders"]["Array"].children.WithIndex())
                 {
                     var subShaderComponent = new ComponentListing()
                     {
-                        Name = $"Subshader {subShaderIndex} (LOD {subShader.LOD})"
+                        Name = $"Subshader {subShaderIndex} (LOD {subShader["m_LOD"].value.AsInt()})"
                     };
                     shaderComponent.Children.Add(subShaderComponent);
 
-                    foreach (var (pass, passIndex) in subShader.Passes.WithIndex())
+                    foreach (var (pass, passIndex) in subShader["m_Passes"]["Array"].children.WithIndex())
                     {
+                        var stateName = pass["m_State"]["m_Name"].value.AsString();
                         var passComponent = new ComponentListing()
                         {
-                            Name = "Pass " + (pass.State.Name == "" ? passIndex.ToString() : $"{pass.State.Name} ({passIndex})")
+                            Name = "Pass " + (stateName == "" ? passIndex.ToString() : $"{stateName} ({passIndex})")
                         };
                         subShaderComponent.Children.Add(passComponent);
 
-                        var vertexPrograms = pass.ProgVertex.SubPrograms;
-                        foreach (var (prog, progIndex) in vertexPrograms.WithIndex())
-                        {
-                            if (progIndex % platforms.Length != 0)
-                            {
-                                continue;
-                            }
-
-                            var name = new StringBuilder();
-                            name.Append($"Vertex subprogram {progIndex} (blob {prog.BlobIndex}");
-                            if (prog.GlobalKeywordIndices.Length > 0)
-                            {
-                                name.Append(", keywords ");
-                                foreach (var (keyword, keywordIndex) in prog.GlobalKeywordIndices.WithIndex())
-                                {
-                                    if (keywordIndex > 0)
-                                    {
-                                        name.Append(", ");
-                                    }
-                                    name.Append(pass.NameIndices.Where(pair => pair.Value == keyword).Select(pair => pair.Key).First());
-                                }
-                            }
-                            name.Append(")");
-
-                            passComponent.Children.Add(new SubProgramListing(new ShaderContext(shader, pass, prog.BlobIndex))
-                            {
-                                Name = name.ToString(),
-                                Blobs = shader.Blobs,
-                                DirectXIndex = directXIndex,
-                                OpenGLIndex = openGLIndex,
-                            });
-                        }
-                        var fragmentPrograms = pass.ProgFragment.SubPrograms;
-                        foreach (var (prog, progIndex) in fragmentPrograms.WithIndex())
-                        {
-                            if (progIndex % platforms.Length != 0)
-                            {
-                                continue;
-                            }
-
-                            var name = new StringBuilder();
-                            name.Append($"Fragment subprogram {progIndex} (blob {prog.BlobIndex}");
-                            if (prog.GlobalKeywordIndices.Length > 0)
-                            {
-                                name.Append(", keywords ");
-                                foreach (var (keyword, keywordIndex) in prog.GlobalKeywordIndices.WithIndex())
-                                {
-                                    if (keywordIndex > 0)
-                                    {
-                                        name.Append(", ");
-                                    }
-                                    name.Append(pass.NameIndices.Where(pair => pair.Value == keyword).Select(pair => pair.Key).First());
-                                }
-                            }
-                            name.Append(")");
-
-                            passComponent.Children.Add(new SubProgramListing(new ShaderContext(shader, pass, prog.BlobIndex))
-                            {
-                                Name = name.ToString(),
-                                Blobs = shader.Blobs,
-                                DirectXIndex = directXIndex,
-                                OpenGLIndex = openGLIndex,
-                            });
-                        }
+                        passComponent.Children.AddRange(GetSubProgramListings(shader, blobs, pass, pass["progVertex"], "Vertex", platforms.Length, directXIndex, openGLIndex));
+                        passComponent.Children.AddRange(GetSubProgramListings(shader, blobs, pass, pass["progFragment"], "Fragment", platforms.Length, directXIndex, openGLIndex));
                     }
                 }
             }
 
-            return (version, components);
+            return components;
         }
     }
 }

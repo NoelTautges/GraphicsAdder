@@ -12,7 +12,7 @@ namespace ShaderExtractor
             var destPath = @"D:\test";
             var converter = new GraphicsConverter(path);
 
-            foreach (var dep in converter.RootFile.dependencies)
+            foreach (var dep in converter.EngineSettings.dependencies)
             {
                 if (dep == null)
                 {
@@ -20,9 +20,9 @@ namespace ShaderExtractor
                 }
 
                 Console.WriteLine(dep.name);
-                var relative = Path.GetRelativePath(converter.RootPath, dep.path);
-                Directory.CreateDirectory(Path.Combine(destPath, Path.GetDirectoryName(relative) ?? ""));
-                converter.ConvertFile(dep, Path.Combine(@"D:\test", relative), false);
+                var relative = Path.GetRelativePath(converter.DataPath, dep.path);
+                Directory.CreateDirectory(Path.Combine(path, Path.GetDirectoryName(relative) ?? ""));
+                converter.ConvertFile(dep, Path.Combine(destPath, relative), true);
             }
         }
     }

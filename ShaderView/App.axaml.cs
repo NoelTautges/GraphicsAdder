@@ -18,11 +18,9 @@ namespace ShaderView
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var shaderLoader = new ShaderLoader();
-
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(shaderLoader),
+                    DataContext = new MainWindowViewModel(),
                 };
             }
 

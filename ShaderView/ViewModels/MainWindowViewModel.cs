@@ -4,9 +4,9 @@ namespace ShaderView.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public MainWindowViewModel(ShaderLoader shaderLoader)
+        public MainWindowViewModel()
         {
-            Browser = new ShaderBrowserViewModel(shaderLoader);
+            Browser = new ShaderBrowserViewModel();
         }
 
         public ShaderBrowserViewModel Browser { get; }

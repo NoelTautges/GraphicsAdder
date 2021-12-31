@@ -13,22 +13,15 @@ namespace ShaderView.ViewModels
 {
     public class ShaderBrowserViewModel : ViewModelBase
     {
-
-        public ShaderBrowserViewModel(ShaderLoader shaderLoader)
-        {
-            this.shaderLoader = shaderLoader;
-            shaderCache = new LanguageCache(UnityVersion.MaxVersion);
-        }
-
         public async void OpenFolder(Window window)
         {
             var dialog = new OpenFolderDialog()
             {
-                Title = "Choose Data Folder"
+                Title = "Choose Game Folder"
             };
             var folder = await dialog.ShowAsync(window);
 
-            if (folder == "")
+            if (folder == null || folder == "")
             {
                 return;
             }
@@ -37,8 +30,8 @@ namespace ShaderView.ViewModels
             FolderOpened = true;
             window.Title = $"ShaderView: {folder}";
 
-            var (version, contents) = shaderLoader.LoadShaders(folder);
-            shaderCache = new LanguageCache(version);
+            converter = new GraphicsConverter(folder);
+            var contents = ShaderLoader.LoadShaders(converter);
             ContentsList.AddRange(contents);
         }
 
@@ -73,7 +66,7 @@ namespace ShaderView.ViewModels
 
         private ShaderSubProgram GetCurrentSubProgram(int platformIndex)
         {
-            if (SelectedProgram == null)
+            if (converter == null || SelectedProgram == null)
             {
                 throw new InvalidOperationException();
             }
@@ -83,12 +76,12 @@ namespace ShaderView.ViewModels
 
         public void DisplayConvertedGLSL(bool unprocessed = false)
         {
-            if (SelectedProgram == null)
+            if (converter == null || SelectedProgram == null)
             {
                 throw new InvalidOperationException();
             }
 
-            ProgramText = shaderCache.GetGLSL(SelectedProgram.Context.GetContext(GetCurrentSubProgram(SelectedProgram.DirectXIndex)), unprocessed);
+            ProgramText = converter.Cache.GetGLSL(SelectedProgram.Context.GetContext(GetCurrentSubProgram(SelectedProgram.DirectXIndex)), unprocessed);
             currentLanguage = unprocessed ? ShaderLanguage.GLSL_CONVERTED_UNPROCESSED : ShaderLanguage.GLSL_CONVERTED_PROCESSED;
         }
 
@@ -111,7 +104,6 @@ namespace ShaderView.ViewModels
         {
             window.Title = "ShaderView";
             FolderOpened = false;
-            shaderCache = new LanguageCache(UnityVersion.MaxVersion);
             ContentsList.Clear();
             currentLanguage = ShaderLanguage.GLSL_CONVERTED_PROCESSED;
             ProgramSelected = false;
@@ -121,8 +113,7 @@ namespace ShaderView.ViewModels
             ProgramHasGLSL = false;
         }
 
-        private ShaderLoader shaderLoader;
-        private LanguageCache shaderCache;
+        private GraphicsConverter? converter;
         private ShaderLanguage currentLanguage = ShaderLanguage.GLSL_CONVERTED_PROCESSED;
 
         private bool folderOpened = false;

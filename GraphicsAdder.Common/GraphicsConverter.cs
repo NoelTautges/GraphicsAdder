@@ -20,37 +20,47 @@ namespace GraphicsAdder.Common
         private const int ShaderPlatform = (int)ShaderGpuProgramType55.GLCore41;
         private readonly AssetTypeValueField[] NoChildren = Array.Empty<AssetTypeValueField>();
 
-        private AssetsManager am = new();
-        private UnityVersion version;
         private AssetLayout layout;
 
         public GraphicsConverter(string gameDirectory)
         {
-            var engineSettings = Path.Combine(gameDirectory, SettingsFile);
-            if (!File.Exists(engineSettings))
-            {
-                try
-                {
-                    var dataDir = (from dir in Directory.GetDirectories(gameDirectory) where dir.Contains("_Data") select dir).First();
-                    engineSettings = Path.Combine(dataDir, SettingsFile);
-                }
-                catch (InvalidOperationException)
-                {
-                    throw new Exception($"Cannot load engine settings from {gameDirectory}!");
-                }
-            }
-            if (!File.Exists(engineSettings))
+            GetAssetsFiles(gameDirectory);
+            if (DataPath == null || EngineSettings == null || AssetsFiles == null)
             {
                 throw new Exception($"Cannot load engine settings from {gameDirectory}!");
             }
 
-            RootPath = Path.GetDirectoryName(engineSettings) ?? gameDirectory;
-            RootFile = am.LoadAssetsFile(engineSettings, true);
-            am.LoadClassPackage("classdata.tpk");
-            var unityVersion = RootFile.file.typeTree.unityVersion;
-            am.LoadClassDatabaseFromPackage(unityVersion);
-            version = UnityVersion.Parse(unityVersion);
-            layout = new(new LayoutInfo(version, UnityPlatform.StandaloneWin64Player, TransferInstructionFlags.SerializeGameRelease));
+            AssetsManager.LoadClassPackage("classdata.tpk");
+            var unityVersion = EngineSettings.file.typeTree.unityVersion;
+            AssetsManager.LoadClassDatabaseFromPackage(unityVersion);
+            Version = UnityVersion.Parse(unityVersion);
+            layout = new(new LayoutInfo(Version, UnityPlatform.StandaloneWin64Player, TransferInstructionFlags.SerializeGameRelease));
+            Cache = new(Version);
+        }
+
+        private void GetAssetsFiles(string gameDirectory)
+        {
+            if (File.Exists(Path.Combine(gameDirectory, "UnityPlayer.dll")))
+            {
+                try
+                {
+                    gameDirectory = (from dir in Directory.GetDirectories(gameDirectory) where dir.Contains("_Data") select dir).First();
+                }
+                catch (InvalidOperationException)
+                {
+                    return;
+                }
+            }
+
+            var engineSettings = Path.Combine(gameDirectory, SettingsFile);
+            if (!File.Exists(engineSettings))
+            {
+                return;
+            }
+
+            DataPath = Path.GetDirectoryName(engineSettings) ?? gameDirectory;
+            EngineSettings = AssetsManager.LoadAssetsFile(engineSettings, true);
+            AssetsFiles = EngineSettings.dependencies.Where(d => d != null).ToList();
         }
 
         private ShaderSubProgramBlob[] UnpackSubProgramBlobs(AssetLayout layout, uint[][] offsets, uint[][] compressedLengths, uint[][] decompressedLengths, byte[] compressedBlob)
@@ -81,16 +91,42 @@ namespace GraphicsAdder.Common
             return blobs;
         }
 
+        public ShaderSubProgramBlob[] GetBlobs(AssetTypeValueField shader)
+        {
+            var blobs = Array.Empty<ShaderSubProgramBlob>();
+            var compressedBlob = shader["compressedBlob"]["Array"].GetChildrenList().Select(b => (byte)b.GetValue().AsInt()).ToArray();
+            if (Shader.IsDoubleArray(Version))
+            {
+                var offsets = AssetsToolsHelper.GetUIntDoubleArray(shader["offsets"]);
+                var compressedLengths = AssetsToolsHelper.GetUIntDoubleArray(shader["compressedLengths"]);
+                var decompressedLengths = AssetsToolsHelper.GetUIntDoubleArray(shader["decompressedLengths"]);
+                blobs = UnpackSubProgramBlobs(layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
+            }
+            else
+            {
+                var offsets = AssetsToolsHelper.GetUIntArray(shader["offsets"]);
+                var compressedLengths = AssetsToolsHelper.GetUIntArray(shader["compressedLengths"]);
+                var decompressedLengths = AssetsToolsHelper.GetUIntArray(shader["decompressedLengths"]);
+                blobs = UnpackSubProgramBlobs(layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
+            }
+            return blobs;
+        }
+
         public void ConvertFile(AssetsFileInstance inst, string destPath, bool inPlace)
         {
             var replacers = new List<AssetsReplacer>();
 
             foreach (var asset in inst.table.GetAssetsOfType((int)AssetClassID.Shader))
             {
-                var shader = am.GetTypeInstance(inst, asset).GetBaseField();
+                var shader = AssetsManager.GetTypeInstance(inst, asset).GetBaseField();
                 var shaderName = shader["m_ParsedForm"]["m_Name"].value.AsString();
                 var platforms = shader["platforms"]["Array"];
                 var directXIndex = -1;
+
+                if (!shadersOfInterest.Contains(shaderName))
+                {
+                    continue;
+                }
 
                 foreach (var (platform, i) in platforms.GetChildrenList().WithIndex())
                 {
@@ -109,25 +145,10 @@ namespace GraphicsAdder.Common
                 }
 
                 platforms.SetChildrenList(platforms.GetChildrenList().Concat(AssetsToolsHelper.GetArrayFromTemplate(platforms, new int[] { 15 })).ToArray());
-                var blobs = Array.Empty<ShaderSubProgramBlob>();
-                var compressedBlob = shader["compressedBlob"]["Array"].GetChildrenList().Select(b => (byte)b.GetValue().AsInt()).ToArray();
-                if (Shader.IsDoubleArray(version))
-                {
-                    var offsets = AssetsToolsHelper.GetUIntDoubleArray(shader["offsets"]);
-                    var compressedLengths = AssetsToolsHelper.GetUIntDoubleArray(shader["compressedLengths"]);
-                    var decompressedLengths = AssetsToolsHelper.GetUIntDoubleArray(shader["decompressedLengths"]);
-                    blobs = UnpackSubProgramBlobs(layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
-                }
-                else
-                {
-                    var offsets = AssetsToolsHelper.GetUIntArray(shader["offsets"]);
-                    var compressedLengths = AssetsToolsHelper.GetUIntArray(shader["compressedLengths"]);
-                    var decompressedLengths = AssetsToolsHelper.GetUIntArray(shader["decompressedLengths"]);
-                    blobs = UnpackSubProgramBlobs(layout, offsets, compressedLengths, decompressedLengths, compressedBlob);
-                }
+                var blobs = this.GetBlobs(shader);
                 ref var blob = ref blobs[directXIndex];
 
-                var cache = new LanguageCache(version);
+                var cache = new LanguageCache(Version);
                 var subShaders = shader["m_ParsedForm"]["m_SubShaders"]["Array"].childrenCount;
 
                 using var memStream = new MemoryStream();
@@ -157,7 +178,7 @@ namespace GraphicsAdder.Common
                             foreach (var (possibleFragment, fragmentIndex) in fragmentSubPrograms.WithIndex())
                             {
                                 var globalKeywords = vertexSubProgram["m_GlobalKeywordIndices"].children.Select(keyword => keyword.value.AsInt()).ToArray();
-                                var hasLocalKeywords = SerializedSubProgram.HasLocalKeywordIndices(version);
+                                var hasLocalKeywords = SerializedSubProgram.HasLocalKeywordIndices(Version);
                                 var localKeywords = hasLocalKeywords ? vertexSubProgram["m_LocalKeywordIndices"].children.Select(keyword => keyword.value.AsInt()).ToArray() : new int[] {};
 
                                 if (possibleFragment["m_GlobalKeywordIndices"].children.Any(keyword => !globalKeywords.Contains(keyword.value.AsInt())) ||
@@ -244,15 +265,20 @@ namespace GraphicsAdder.Common
                 var writer = new AssetsFileWriter(File.OpenWrite(writePath));
                 inst.file.Write(writer, 0, replacers, 0);
                 writer.Close();
+                AssetsManager.UnloadAssetsFile(inst.path);
 
                 if (inPlace)
                 {
-                    File.Move(writePath, destPath);
+                    File.Move(writePath, destPath, true);
                 }
             }
         }
 
-        public string RootPath { get; set; }
-        public AssetsFileInstance RootFile { get; set; }
+        public AssetsManager AssetsManager { get; set; } = new();
+        public string DataPath { get; set; }
+        public AssetsFileInstance EngineSettings { get; set; }
+        public List<AssetsFileInstance> AssetsFiles { get; set; }
+        public UnityVersion Version { get; set; }
+        public LanguageCache Cache { get; set; }
     }
 }
