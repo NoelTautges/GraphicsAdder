@@ -1,7 +1,8 @@
-﻿using AssetsTools.NET;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using uTinyRipper.Classes.Shaders;
+
 using UnityVersion = uTinyRipper.Version;
 
 namespace GraphicsAdder.Common
@@ -33,19 +34,15 @@ namespace GraphicsAdder.Common
             return map[key];
         }
 
-        private void ProcessSubProgramList(ShaderContext ctx, AssetTypeValueField program, ShaderSubProgramBlob blob)
+        public void ProcessSubPrograms(ShaderContext ctx, ShaderSubProgramBlob blob)
         {
-            Parallel.ForEach(program["m_SubPrograms"]["Array"].children, subProgram =>
+            var vertexSubPrograms = ctx.Pass["progVertex"]["m_SubPrograms"]["Array"].children;
+            var fragmentSubPrograms = ctx.Pass["progFragment"]["m_SubPrograms"]["Array"].children;
+            Parallel.ForEach(vertexSubPrograms.Concat(fragmentSubPrograms), subProgram =>
             {
                 var blobIndex = subProgram["m_BlobIndex"].value.AsUInt();
                 GetGLSL(ctx.GetContext(blob.SubPrograms[blobIndex], blobIndex));
             });
-        }
-
-        public void ProcessSubPrograms(ShaderContext ctx, ShaderSubProgramBlob blob)
-        {
-            ProcessSubProgramList(ctx, ctx.Pass["progVertex"], blob);
-            ProcessSubProgramList(ctx, ctx.Pass["progFragment"], blob);
         }
     }
 }
